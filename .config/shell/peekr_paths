@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Auto-generated from /home/amateur_hacker/.config/peekr/config.toml
+
+declare -A CONFIG_PATHS=(
+  ["$HOME"]=".bashrc .zshenv"
+  ["$HOME/.config"]="bat btop cava dunst/dunstrc fastfetch fish fontconfig fuzzel ^ghostty/(?!shaders/|themes/).*$ git hypr kitty mpv nvim/.*.lua peekr qt5ct qt6ct waybar waypaper wezterm wlogout/(layout|style.css) satty shell starship zathura zsh mimeapps.list"
+  ["/etc"]="pacman.conf"
+)
+
+declare -A SCRIPT_PATHS=(
+  ["$HOME/.config/shell"]="peekr"
+  ["$HOME/.local/bin"]="my-scripts"
+)

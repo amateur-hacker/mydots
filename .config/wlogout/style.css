@@ -1,0 +1,100 @@
+/*
+__        ___                         _
+\ \      / / | ___   __ _  ___  _   _| |_
+ \ \ /\ / /| |/ _ \ / _` |/ _ \| | | | __|
+  \ V  V / | | (_) | (_| | (_) | |_| | |_
+   \_/\_/  |_|\___/ \__, |\___/ \__,_|\__|
+                    |___/
+*/
+
+@import "./colors.css";
+
+@define-color accent @lavender;
+
+* {
+  background-image: none;
+  box-shadow: none;
+}
+
+window {
+  font-family: "JetBrains Mono";
+  font-size: 16pt;
+  color: @text;
+  background-color: alpha(@base, 0.5);
+}
+
+button {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 25%;
+  background-color: transparent;
+  animation: gradient_f 20s ease-in infinite;
+  transition: all 0.3s ease-in;
+  box-shadow: 0 0 10px 2px transparent;
+  border-radius: 36px;
+  margin: 10px;
+}
+
+button:focus,
+button:hover {
+  background-size: 50%;
+  box-shadow: 0 0 10px 3px alpha(@crust, 0.4);
+  transition:
+    all 0.3s cubic-bezier(0.55, 0, 0.28, 1.682),
+    box-shadow 0.5s ease-in;
+}
+
+button:focus {
+  background-color: @accent;
+  color: @base;
+}
+
+button:hover {
+  background-color: alpha(@overlay0, 0.3);
+}
+
+button:focus:hover {
+  background-color: @accent;
+}
+
+#shutdown {
+  background-image: image(url("./icons/power.png"));
+}
+#shutdown:focus {
+  background-image: image(url("./icons/power-focus.png"));
+}
+
+#reboot {
+  background-image: image(url("./icons/restart.png"));
+}
+#reboot:focus {
+  background-image: image(url("./icons/restart-focus.png"));
+}
+
+#logout {
+  background-image: image(url("./icons/logout.png"));
+}
+#logout:focus {
+  background-image: image(url("./icons/logout-focus.png"));
+}
+
+#suspend {
+  background-image: image(url("./icons/sleep.png"));
+}
+#suspend:focus {
+  background-image: image(url("./icons/sleep-focus.png"));
+}
+
+#lock {
+  background-image: image(url("./icons/lock.png"));
+}
+#lock:focus {
+  background-image: image(url("./icons/lock-focus.png"));
+}
+
+#hibernate {
+  background-image: image(url("./icons/hibernate.png"));
+}
+#hibernate:focus {
+  background-image: image(url("./icons/hibernate-focus.png"));
+}

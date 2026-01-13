@@ -1,0 +1,410 @@
+mysmartbazaar
+https://gitlab.com/garuda-linux/themes-and-settings/settings/garuda-dr460nized/-/tree/main?ref_type=heads
+https://github.com/uiriansan/SilentSDDM?tab=readme-ov-file
+https://github.com/catppuccin/tty
+
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+<fontconfig>
+	<match target="font">
+		<test name="family" compare="eq" ignore-blanks="true">
+			<string>JetBrainsMono Nerd Font</string>
+		</test>
+		<edit name="fontfeatures" mode="append">
+			<string>zero on</string>
+		</edit>
+	</match>
+</fontconfig>
+
+It's not reading by my sddm theme font
+ChatGPT said:
+
+Yeah, that’s because SDDM doesn’t actually load your personal fontconfig rules in the same way desktop apps do — it uses its own environment at the greeter stage, often running outside your user session.
+
+So even if you’ve got this in ~/.config/fontconfig/fonts.conf or /etc/fonts/conf.d, the greeter might not see it unless:
+
+The font is installed system-wide
+Make sure JetBrainsMono Nerd Font is in /usr/share/fonts/ or /usr/local/share/fonts/ (not just in your ~/.local/share/fonts/).
+Then run:
+
+sudo fc-cache -f -v
+
+
+The config is placed in a system-wide location
+For SDDM, put your XML snippet in:
+
+/etc/fonts/conf.avail/99-jetbrains-zero.conf
+
+
+and symlink it:
+
+sudo ln -s /etc/fonts/conf.avail/99-jetbrains-zero.conf /etc/fonts/conf.d/99-jetbrains-zero.conf
+sudo fc-cache -f -v
+
+
+Your SDDM theme actually requests that font
+In your theme’s theme.conf or QML files, the font.family property has to explicitly be:
+
+font.family: "JetBrainsMono Nerd Font"
+
+
+If it’s something else (like a generic monospace), fontconfig won’t match it.
+
+SDDM might require a restart
+
+sudo systemctl restart sddm
+
+
+💡 Extra gotcha: Some Qt/SDDM builds ignore advanced font features (fontfeatures like zero on) unless QT_QPA_PLATFORMTHEME or HarfBuzz shaping is enabled in the greeter’s environment. If you’re using a stock distro SDDM, it’s possible the greeter doesn’t honor OpenType feature flags at all.
+
+If you want, I can give you a patched QML theme snippet that forces JetBrainsMono with slashed zero inside SDDM without relying on fontconfig. That would bypass this limitation entirely.
+
+Do you want me to go that route?
+
+You said:
+will i have to put inside root folder
+ChatGPT said:
+
+Yep — for SDDM, you pretty much have to put both the font file and the fontconfig rule in places the root-owned greeter environment can see.
+
+So:
+
+Font file → goes in a system font dir:
+
+/usr/share/fonts/TTF/
+
+
+or
+
+/usr/local/share/fonts/
+
+
+(not ~/.local/share/fonts — the greeter can’t read your home folder before login)
+
+Fontconfig XML → goes in /etc/fonts/ (system-wide):
+
+/etc/fonts/conf.avail/99-jetbrains-zero.conf
+
+
+and symlink it:
+
+sudo ln -s /etc/fonts/conf.avail/99-jetbrains-zero.conf /etc/fonts/conf.d/99-jetbrains-zero.conf
+sudo fc-cache -f -v
+
+
+After that, restart SDDM:
+
+sudo systemctl restart sddm
+
+
+If you only put it in your root folder (like /root/.config/fontconfig), it still won’t work — SDDM doesn’t load /root’s configs either. It only scans system font paths and /etc/fonts/ rules.
+
+If you want, I can also tell you how to hard-code the font in the theme’s .qml file so you don’t even need the fontconfig XML. That’s usually more reliable for SDDM.
+
+Do you want me to give that method?
+
+You said:
+i am confused should i put 99-jetbrains-zero.conf into /etc/fonts/conf.avail or /usr/share/fontconfig/conf.avail
+ChatGPT said:
+
+Put it in /etc/fonts/conf.avail — that’s the standard place for your own system-wide fontconfig overrides.
+
+/usr/share/fontconfig/conf.avail is for the defaults shipped by your distro’s fontconfig package. If you put it there, it’ll work, but it’s riskier because a package update could overwrite or remove your file.
+
+So the safe approach:
+
+sudo nano /etc/fonts/conf.avail/99-jetbrains-zero.conf
+# paste your XML here
+sudo ln -s /etc/fonts/conf.avail/99-jetbrains-zero.conf /etc/fonts/conf.d/99-jetbrains-zero.conf
+sudo fc-cache -f -v
+sudo systemctl restart sddm
+
+
+💡 TL;DR —
+
+/etc/fonts/conf.avail → for admin-added configs
+
+/usr/share/fontconfig/conf.avail → for package-provided configs
+
+If you want, I can also explain why SDDM will only see it from there and not your home directory. Would you like me to go into that?
+
+
+==> WARNING: consolefont: no font found in configuration
+sudo pacman -S ast-firmware
+
+
+
+https://github.com/MrVivekRajan/Plymouth-Themes
+addhaar card digi locker 6digit pin 728986
+https://github.com/HyDE-Project/HyDE/tree/master
+base46 theme
+342050460357
+
+
+
+    zen.urlbar.replace-newtab to false in about:config to revert
+
+https://github.com/orangci/walls-catppuccin-mocha
+https://orangc.net/
+
+t.me/addtheme/catppuccin_mocha_mauve
+https://www.reddit.com/r/kde/comments/ybp191/how_to_auto_unlock_kwallet/
+https://wiki.archlinux.org/title/KDE_Wallet
+
+
+~
+❯ sudo auto-cpufreq --install
+
+--------------------- Deploying auto-cpufreq as a daemon ----------------------
+
+* Turn off Bluetooth on boot (only)!
+  If you want bluetooth enabled on boot run: auto-cpufreq --bluetooth_boot_on
+
+* Deploy auto-cpufreq install script
+
+* Deploy auto-cpufreq remove script
+There was a problem, couldn't determine GNOME Power Profiles Daemon
+
+─────────────────────────────────── Running auto-cpufreq daemon install script ───────────────────────────────────
+
+Deploying auto-cpufreq systemd unit file
+cp: cannot stat '/usr/local/share/auto-cpufreq/scripts/auto-cpufreq.service': No such file or directory
+
+* Reloading systemd manager configuration
+
+* Starting auto-cpufreq daemon (systemd) service
+
+* Enabling auto-cpufreq daemon (systemd) at boot
+Created symlink '/etc/systemd/system/multi-user.target.wants/auto-cpufreq.service' → '/usr/lib/systemd/system/auto-cpufreq.service'.
+
+----------------- auto-cpufreq daemon installed and running -----------------
+
+To view live stats, run:
+auto-cpufreq --stats
+
+auto-cpufreq makes all decisions automatically, if you would like to
+configure certain setting to your own liking, please refer to:
+https://github.com/AdnanHodzic/auto-cpufreq#configuring-auto-cpufreq
+
+
+sudo auto-cpufreq --remove
+
+-------------------------------------------------------------------------------
+
+
+hyprctl --batch "
+    dispatch togglefloating address:$ADDR;
+dispatch resizewindowpixel exact $WIDTH $HEIGHT,address:$ADDR;
+    dispatch movewindowpixel exact $X $Y,address:$ADDR
+"
+
+plasma-sdk
+
+
+
+[General]
+type=image
+color=#C3C7D1
+highlight_color=#ffffff
+selected_color=#c50ed2
+fontSize=11
+Background="assets/wall.png"
+font="Cantarell"
+
+
+
+# Ever wanna reset
+docker compose down -v
+
+#NOTE:
+better auth secret
+
+https://github.com/katzer/cordova-plugin-background-mode/issues/562
+
+ const navigateWithQuery = (q: string) => {
+    startTransition(() => {
+      if (!q?.length) router.push("/search");
+      else router.push(`/search?q=${encodeQueryParam(q)}`);
+    });
+  };
+
+You are a mood-describer. Analyze the last ≤10 songs the user listened to and express their mood in exactly two lines in hindi:
+
+First line → An emoji followed by one or two words that summarize the mood.
+
+Second line → A short, impactful sentence that captures the essence of how they feel.
+
+You are a mood-describer for a music app dashboard. Analyze the last ≤10 songs the user listened to and express their mood in exactly two lines, either in Hindi or English (based on song vibe).\n\nFormatting Rules:\n1. First line → Start with an expressive emoji + a bold, catchy 1–2 word mood label.\n2. Second line → A short, impactful, and aesthetic sentence that feels poetic and dashboard-friendly.\n\nKeep it stylish, minimal, and emotionally resonant — something users will love to see at a glance.
+
+[font-variant-emoji:text]
+
+ffmpeg -i myaudio.mp3 -i zindagi-sawar-du.mp3 \
+      -filter_complex "[0:a]atrim=start=0.75,volume=1.5,asetpts=PTS-STARTPTS,aecho=0.8:0.9:20:0.3[a1]; \
+                   [1:a]volume=0.6[a2]; \
+                   [a1][a2]amix=inputs=2:duration=longest:dropout_transition=2,volume=1.5" \
+      output.mp3
+
+
+ffmpeg -i myaudio.mp3 -i zindagi-sawar-du.mp3 \
+  -filter_complex "[0:a]atrim=start=0.75,volume=1.5,asetpts=PTS-STARTPTS,aecho=0.8:0.9:1000:0.3[a1]; \
+                   [1:a]volume=0.6[a2]; \
+                   [a1][a2]amix=inputs=2:duration=longest:dropout_transition=2,volume=1.5" \
+  output.mp3
+
+ ffmpeg -i myaudio.mp3 -i zindagi-sawar-du.mp3 \
+        -filter_complex "[0:a]atrim=start=0.75,volume=2,asetpts=PTS-STARTPTS,aecho=0.8:0.9:12:0.25[a1]; \
+                     [1:a]volume=0.5[a2]; \
+                     [a1][a2]amix=inputs=2:duration=longest:dropout_transition=2, \
+                     alimiter=limit=0.9,volume=1.2, \
+                     atempo=0.9,highpass=f=50,lowpass=f=12000" \
+        output_lofi.mp3
+
+ffmpeg -i myaudio.mp3 -i zindagi-sawar-du.mp3 \
+        -filter_complex "[0:a]atrim=start=0.75,volume=2,asetpts=PTS-STARTPTS,aecho=0.6:0.7:30:0.1[a1]; \
+                     [1:a]volume=0.5[a2]; \
+                     [a1][a2]amix=inputs=2:duration=longest:dropout_transition=2, \
+                     alimiter=limit=0.9,volume=1.2, \
+                     atempo=1,highpass=f=50,lowpass=f=12000" \
+
+
+https://www.npmjs.com/package/ytdlp-nodejs
+
+https://payments.zoho.in/app/60045307722#/settings/business-profile
+
+
+const SongPlayerContext = createContext<SongPlayerContextProps | null>({
+  currentSong: null,
+  youtubeId: null,
+  setIsPlaying: () => {},
+  isPlaying: false,
+  setSong: () => {},
+  togglePlay: () => {},
+  setIsLoading: () => {},
+  isLoading: false,
+  setProgress: () => {},
+  progress: 0,
+  setDuration: () => {},
+  duration: 0,
+  playerRef: { current: null },
+  mode: "normal",
+  setMode: () => {},
+  setIsPlayerFullScreen: () => {},
+  isPlayerFullScreen: false,
+});
+nvim-lspconfig.folds.enabled = false
+
+ underline decoration-wavy underline-offset-4
+
+
+<GlitchText
+  speed={1}
+  enableShadows={true}
+  enableOnHover={false}
+  className="mb-4 text-center after:left-0 after:right-0 after:m-auto after:translate-x-[10px] before:left-0 before:right-0 before:m-auto before:-translate-x-[10px] !cursor-default font-playful"
+>
+  {moodlistName}
+</GlitchText>
+
+type MoodlistItem = Awaited<
+  ReturnType<typeof getUserMoodlists>
+>[number];
+
+You are a music mood classifier.
+
+Given the song title and description, classify the song into ONE of the following categories:
+["Happy", "Sad", "Romantic", "Energetic", "Calm", "Motivational", "Emotional", "Unknown"]
+
+Rules:
+- Choose the mood that best represents the *emotional atmosphere* of the song.
+- Focus on the vibe implied by the title, tone, and description.
+- If the song title or description contains hints like “lo-fi,” “phonk,” or “chill,” assume a relaxed or emotional atmosphere.
+- If it mentions “dark,” “melancholic,” or “nostalgic,” it’s likely Emotional.
+- If it’s “fast,” “trap,” or “aggressive,” it’s likely Energetic.
+- If it clearly expresses love or affection, choose Romantic.
+- If it feels uplifting or inspiring, choose Motivational.
+- If it’s upbeat or joyful, choose Happy.
+- If it sounds sorrowful or depressing, choose Sad.
+- If there’s not enough information to infer the mood, choose Unknown.
+
+Return ONLY one category word — no explanation, no punctuation.
+
+https://iconikai.gumlet.io/workspace/68fd476c2699d55f9053132a/17614297014540.png?w=256&q=95
+https://useanimations.com/
+https://www.diceui.com/docs/components/sortable
+
+NOTE:
+Remember to use notFound() in moodifyr
+
+Virtualization
+react-virtuoso
+
+<Virtuoso
+  data={songs}
+  endReached={fetchNextPage}
+  useWindowScroll
+  overscan={400}
+  components={{
+    Footer: () => (
+      isLoadingMore ? <div className="py-5 text-center">Loading more...</div> : null
+    ),
+  }}
+  itemContent={(i, song) => <SongCard song={song} />}
+/>
+https://coss.com/origin
+https://www.npmjs.com/package/react-infinite-scroll-component
+
+localsend
+https://ramx.in/
+https://blog.ramx.in/
+https://chanhdai.com/
+https://github.com/Axenide?tab=stars
+
+# Set GTK4 apps to dark mode
+exec-once = gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
+
+# hide gtk window controls
+exec-once = gsettings set org.gnome.desktop.wm.preferences button-layout :
+
+https://purvanchalmitramahasabha.lovable.app/
+https://purvamitra-afj6g8kk.manus.space/
+
+
+Payu service
+password: St26042004@,
+
+Cashfree
+
+
+
+Next.js SEO Complete Checklist
+I recently found that many Next.js developers struggle to optimize their site SEO performance, especially technical SEO as there are many things to be done.
+
+So I wrote this tutorial to show you guys all the necessary things that should be added to your Next.js app to help search engines understand your site better.
+
+In summary, important key points include:
+
+Meta tags
+
+JSON-LD Schema
+
+Sitemap
+
+robots.txt
+
+Link tags
+
+Script optimization
+
+Image optimization
+
+
+next-seo, next-sitemap
+
+is-standalone-pwa
+react-use-pwa-install
+og impage support
+
+about us add 5 members from whatsapp.
+
+https://merchant.cashfree.com/verificationsuite/developers/api-keys
+https://secretkeygen.vercel.app/

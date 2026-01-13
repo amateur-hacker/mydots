@@ -1,0 +1,157 @@
+type MoodResult = {
+  mood: string;
+  message: string;
+};
+
+const CATEGORY_EMOJI: Record<string, string> = {
+  Happy: "😄",
+  Sad: "😔",
+  Romantic: "❤️",
+  Energetic: "⚡",
+  Calm: "😌",
+  Motivational: "💪",
+  Melancholy: "😢",
+  Unknown: "🤔",
+};
+
+const getUserMoodBySongHistory = async ({
+  startDate,
+  endDate,
+}: {
+  startDate: Date;
+  endDate: Date;
+}) => {
+  return executeFn({
+    fn: async ({ sessionUser }) => {
+      if (!sessionUser?.id) return null;
+
+      // 1) Aggregate by category (songs.mood)
+      const rows = await db
+        .select({
+          category: songs.mood,
+          times: sql<number>`COUNT(*)`,
+        })
+        .from(songPlayHistory)
+        .leftJoin(songs, eq(songs.id, songPlayHistory.songId))
+        .where(
+          and(
+            eq(songPlayHistory.userId, sessionUser.id),
+            gte(songPlayHistory.playedAt, startDate),
+            lte(songPlayHistory.playedAt, endDate),
+          ),
+        )
+        .groupBy(songs.mood)
+        .orderBy(desc(sql`COUNT(*)`));
+
+      if (!rows?.length) return null;
+
+      // 2) Normalize counts (treat null/empty mood as "Unknown")
+      const counts: Record<string, number> = {};
+      let totalPlays = 0;
+      for (const r of rows) {
+        const cat = (r.category as string) ?? "Unknown";
+        const n = Number(r.times || 0);
+        counts[cat] = (counts[cat] || 0) + n;
+        totalPlays += n;
+      }
+
+      // 3) Build compact input string for the LLM (or shortcut)
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      const compactLines = sorted.map(([cat, n]) => `${cat}: ${n} ${n === 1 ? "play" : "plays"}`);
+      const songHistoryInput = compactLines.join("\n");
+
+      // 4) Quick deterministic shortcut:
+      //    If the top category covers >= 70% of plays, we can return a simple result without LLM.
+      const [topCategory, topCount] = sorted[0];
+      if (totalPlays > 0 && topCount / totalPlays >= 0.7) {
+        const emoji = CATEGORY_EMOJI[topCategory] || "";
+        const mood = `${emoji} ${topCategory}`;
+        const message = `You were mostly ${topCategory.toLowerCase()} during this period.`;
+        return { mood, message } as MoodResult;
+      }
+
+      // 5) Prepare date strings and tense hint
+      const formatLocalDate = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+      const startDateStr = formatLocalDate(startDate);
+      const endDateStr = formatLocalDate(endDate);
+      const today = convertToLocalTZ(new Date());
+      const isTodayIncluded =
+        (startDate.getFullYear() === today.getFullYear() &&
+          startDate.getMonth() === today.getMonth() &&
+          startDate.getDate() === today.getDate()) ||
+        (endDate.getFullYear() === today.getFullYear() &&
+          endDate.getMonth() === today.getMonth() &&
+          endDate.getDate() === today.getDate());
+
+      // 6) Call LLM once with compacted input
+      const systemPrompt = `You are a mood-describer for a music app dashboard.
+The user will send a compact list of categories and counts (one per line) in the form:
+"Category: N plays"
+Use the counts and categories to infer the user's overall mood for the date range.
+If the end date is today, use present tense. Otherwise use past tense.
+
+Respond ONLY with a single valid JSON object (no extra text) with keys:
+{
+  "mood": "😔 Sad",
+  "message": "Short friendly one-liner"
+}
+
+Rules:
+- mood = emoji + 1–2 word tag (no markdown)
+- message = short, friendly, conversational sentence
+- Keep it simple and make the user smile or nod
+- Date range: ${startDateStr} to ${endDateStr}
+- Present tense: ${isTodayIncluded}`;
+
+      const userContent = songHistoryInput;
+
+      const chatCompletion = await groq.chat.completions.create({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userContent },
+        ],
+        model: "openai/gpt-oss-20b",
+        temperature: 0, // deterministic for stable JSON
+        max_completion_tokens: 300,
+        top_p: 1,
+        stream: false,
+        reasoning_effort: "high",
+      });
+
+      const raw = chatCompletion?.choices?.[0]?.message?.content?.trim();
+      if (!raw) return null;
+
+      // 7) Extract JSON object even if assistant added noise
+      const tryParse = (text: string) => {
+        try {
+          return JSON.parse(text) as MoodResult;
+        } catch {
+          const m = text.match(/\{[\s\S]*\}/);
+          if (m) {
+            try {
+              return JSON.parse(m[0]) as MoodResult;
+            } catch (e) {
+              return null;
+            }
+          }
+          return null;
+        }
+      };
+
+      const parsed = tryParse(raw);
+      if (!parsed) {
+        console.error("getUserMoodBySongHistory: failed to parse LLM output:", raw);
+        return null;
+      }
+
+      return parsed;
+    },
+    isProtected: true,
+    serverErrorMessage: "getUserMoodBySongHistory",
+  });
+};

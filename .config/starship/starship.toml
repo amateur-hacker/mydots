@@ -1,0 +1,175 @@
+#  ____  _                 _     _
+# / ___|| |_ __ _ _ __ ___| |__ (_)_ __
+# \___ \| __/ _` | '__/ __| '_ \| | '_ \
+#  ___) | || (_| | |  \__ \ | | | | |_) |
+# |____/ \__\__,_|_|  |___/_| |_|_| .__/
+#                                 |_|
+
+"$schema" = 'https://starship.rs/config-schema.json'
+
+add_newline = true
+
+# format = """
+# $directory\
+# $git_branch\
+# $git_state\
+# $git_status\
+# $git_metrics\
+# $fill\
+# $aws $python $package $nodejs \
+# $cmd_duration\
+# $line_break\
+# $character"""
+
+# format = """
+# $directory\
+# $git_branch\
+# $git_state\
+# $git_status\
+# $git_metrics\
+# $character
+# """
+#
+# right_format="""
+# $aws $python $package $nodejs \
+# $cmd_duration
+# """
+
+# format = """
+# $directory\
+# $git_branch\
+# $git_state\
+# $git_status\
+# $git_metrics\
+# $character
+# """
+
+format = """
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$git_metrics\
+$line_break\
+$character\
+"""
+
+palette = "catppuccin_mocha"
+
+[line_break]
+disabled = false
+
+[fill]
+symbol = " "
+
+[username]
+style_user = "bold red"
+format = "[$user]($style)"
+disabled = false
+show_always = true
+
+[hostname]
+style = "bold white"
+ssh_only = false
+format = '@[$hostname]($style) '
+trim_at = "."
+disabled = false
+
+[directory]
+style = "blue"
+read_only = " "
+truncation_length = 1
+truncate_to_repo = false
+fish_style_pwd_dir_length = 1
+format = "[$path]($style)[$read_only]($read_only_style) "
+# home_symbol = "~  "
+# home_symbol = "~   amateur_hacker@machine"
+
+[character]
+success_symbol = "[❯](green)"
+error_symbol = "[❯](red)"
+vicmd_symbol = "[❮](green)"
+
+[git_branch]
+symbol = " "
+format = "[$symbol$branch]($style) "
+style = "overlay0"
+
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+style = "teal"
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+style = "overlay0"
+
+[git_metrics]
+disabled = false
+
+[cmd_duration]
+min_time = 200
+format = "[$duration]($style)"
+style = "bold yellow"
+
+[memory_usage]
+disabled = false
+symbol = " "
+threshold = -1
+format = " [$symbol($ram)]($style)"
+
+[aws]
+symbol = "  "
+format = "[$symbol($version)]($style)"
+
+[package]
+symbol = " "
+format = "[$symbol($version)]($style)"
+
+[python]
+symbol=" "
+#pyenv_version_name = true
+format = '[$symbol($version) (\($virtualenv\) )]($style)'
+style = "bold yellow"
+pyenv_prefix = "venv "
+python_binary = ["./venv/bin/python", "python", "python3", "python2"]
+detect_extensions = ["py"]
+version_format = "v${raw}"
+
+[nodejs]
+symbol = "󰎙 "
+format = "[$symbol($version)]($style)"
+detect_files = ["package.json", ".node-version"]
+detect_folders = ["node_modules"]
+
+[time]
+disabled = false
+style = "bold white"
+format = "[$time]($style)"
+
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"

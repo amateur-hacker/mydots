@@ -1,0 +1,71 @@
+Console Error
+
+A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+See more info here: https://nextjs.org/docs/messages/react-hydration-error
+
+
+  ...
+    <MenuProvider scope={{Menu:[...], ...}} open={false} onOpenChange={function useCallbackRef.useMemo} content={null} ...>
+      <MenuProvider scope={{Menu:[...], ...}} onClose={function Menu.useCallback} isUsingKeyboardRef={{current:false}} ...>
+        <DropdownMenuTrigger asChild={true}>
+          <DropdownMenuTrigger data-slot="dropdown-m..." className="cursor-poi..." asChild={true}>
+            <MenuAnchor asChild={true} __scopeMenu={{Menu:[...], ...}}>
+              <PopperAnchor __scopePopper={{Menu:[...], ...}} asChild={true} ref={null}>
+                <Primitive.div asChild={true} ref={function}>
+                  <Primitive.div.Slot ref={function}>
+                    <Primitive.div.SlotClone ref={function}>
+                      <Primitive.button type="button" id="radix-_R_5..." aria-haspopup="menu" aria-expanded={false} ...>
+                        <Primitive.button.Slot type="button" id="radix-_R_5..." aria-haspopup="menu" ...>
+                          <Primitive.button.SlotClone type="button" id="radix-_R_5..." aria-haspopup="menu" ...>
+                            <Button size="icon" variant="ghost" type="button" id="radix-_R_5..." aria-haspopup="menu" ...>
+                              <button
+                                data-slot="dropdown-menu-trigger"
+                                className={"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-m..."}
+                                type="button"
++                               id="radix-_R_56atpevd5rilb_"
+-                               id="radix-_R_kpbn5rtknealb_"
+                                aria-haspopup="menu"
+                                aria-expanded={false}
+                                aria-controls={undefined}
+                                data-state="closed"
+                                data-disabled={undefined}
+                                disabled={false}
+                                onPointerDown={function handleEvent}
+                                onKeyDown={function handleEvent}
+                                ref={function}
+                              >
+        ...
+src/components/ui/button.tsx (51:5) @ Button
+
+
+  49 |
+  50 |   return (
+> 51 |     <Comp
+     |     ^
+  52 |       data-slot="button"
+  53 |       className={cn(buttonVariants({ variant, size, className }))}
+  54 |       {...props}
+Call Stack
+30
+
+Show 24 ignore-listed frame(s)
+button
+<anonymous>
+Button
+src/components/ui/button.tsx (51:5)
+PlayHeader
+src/app/(app)/_components/play-header.tsx (81:11)
+DropdownMenuTrigger
+src/components/ui/dropdown-menu.tsx (27:5)
+PlayHeader
+src/app/(app)/_components/play-header.tsx (80:9)
+FavSongsPage
+src/app/(app)/favourites/page.tsx (43:11)

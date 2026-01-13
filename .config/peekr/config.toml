@@ -1,0 +1,13 @@
+[CONFIG_PATHS]
+"$HOME" = [".bashrc", ".zshenv"]
+"$HOME/.config" = [
+  "bat", "btop", "cava", "dunst/dunstrc", "eza", "fastfetch", "fish", "fontconfig", "fuzzel",
+  "ghostty/config", "git", "hypr", "kitty", "mpv", "nvim/.*.lua", "peekr", "qt5ct", "qt6ct",
+  "satty", "waybar", "waypaper", "wezterm", "wlogout/(layout|style.css)", "yazi",
+  "shell", "starship", "zathura", "zsh", "mimeapps.list", "niri"
+]
+"/etc" = ["pacman.conf"]
+
+[SCRIPT_PATHS]
+"$HOME/.local/bin" = ["my-scripts"]
+"$HOME/.config/shell" = ["peekr"]

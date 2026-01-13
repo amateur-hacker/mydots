@@ -1,0 +1,227 @@
+# Setting variables
+$superMod = SUPER
+$altMod = ALT
+$fileManager = thunar
+$browser = $BROWSER
+$term = wezterm
+$visualEditor = neovide
+$menu = fuzzel
+$hyprDir = $HOME/.config/hypr
+$scriptsDir = $HOME/.config/hypr/scripts
+$submapReset = hyprctl dispatch submap reset
+$normalScreenshot = grim -g "$(slurp -o -r -c '##f38ba8ff')" -t ppm - | satty --filename - --fullscreen --output-filename ~/pictures/screenshots/screenshot-$(date '+%d-%b-%y_%Ih%Mm%Ss%p').png
+
+# Scripts Variables
+$airplaneMode = $scriptsDir/airplane-mode.sh
+$brightness = $scriptsDir/brightness.sh
+$mediaCtrl = $scriptsDir/media-ctrl.sh
+$screenshot = $scriptsDir/screenshot.sh
+$volume = $scriptsDir/volume.sh
+$powerMenu = $scriptsDir/wlogout.sh
+$refresh = $scriptsDir/refresh.sh
+
+bindel = , XF86AudioRaiseVolume, exec, $volume --inc
+bindel = , XF86AudioLowerVolume, exec, $volume --dec
+bindl = , XF86AudioMute, exec, $volume --toggle
+bindl = , xf86AudioMicMute, exec, $volume --toggle-mic
+bindel = , XF86MonBrightnessUp, exec, $brightness --inc
+bindel = , XF86MonBrightnessDown, exec, $brightness --dec
+bindl = , XF86AudioPlayPause, exec, $mediaCtrl --pause
+bindl = , XF86AudioPause, exec, $mediaCtrl --pause
+bindl = , XF86AudioPlay, exec, $mediaCtrl --pause
+bindl = , XF86AudioNext, exec, $mediaCtrl --nxt
+bindl = , XF86AudioPrev, exec, $mediaCtrl --prv
+bindl = , XF86AudioStop, exec, $mediaCtrl --stop
+bindl = , XF86Rfkill, exec, $airplaneMode
+bindl = , XF86Lock, exec, hyprlock                                                                                           # Open screenlock
+bindl = , XF86Sleep, exec, systemctl suspend
+bind = , Print, exec, $normalScreenshot
+
+binde = $superMod, RETURN, exec, $term
+bind = $superMod, A, exec, $menu
+bind = $superMod, B, exec, $browser
+bind = $superMod, C, exec, $visualEditor
+bind  = $superMod, E, exec, $fileManager
+bind  = $superMod, D, exec, discord
+bind  = $superMod, T, exec, iMe
+bind = $superMod, S, exec, spotify
+
+bind = $superMod, Q, exec, hyprlock
+bind = $superMod CTRL, Q, exec, systemd-inhibit --mode=block --what=idle:sleep --why="Manual screen lock" hyprlock
+bind = $superMod SHIFT, Q, exec, bash -c "[ ! $(pidof wlogout) ] && $powerMenu"
+bind = $superMod, V, exec, pavucontrol
+bind = $superMod, P, exec, hyprpicker -a
+
+binde = $superMod CTRL, C, killactive,
+binde = $superMod CTRL, X, forcekillactive,
+bind = $superMod CTRL, R, exec, $refresh
+bind = $superMod CTRL, F, togglefloating,
+bind = $superMod CTRL, SPACE, fullscreen,
+bind = $superMod CTRL SHIFT, SPACE, fullscreen, 1
+binde = $superMod CTRL, J, layoutmsg, cyclenext
+binde = $superMod CTRL, K, layoutmsg, cycleprev
+binde = $superMod CTRL SHIFT, J, layoutmsg, swapnext
+binde = $superMod CTRL SHIFT, K, layoutmsg, swapprev
+bind = $superMod CTRL, M, layoutmsg, swapwithmaster
+binde = $superMod CTRL, H, resizeactive, -50 0
+binde = $superMod CTRL, L, resizeactive, 50 0
+bind = $superMod CTRL SHIFT, equal, exec, hyprctl keyword cursor:zoom_factor "$(hyprctl getoption cursor:zoom_factor | awk 'NR==1 {factor = $2; if (factor < 1) {factor = 1}; print factor * 2.0}')"
+bind = $superMod CTRL, minus, exec, hyprctl keyword cursor:zoom_factor "$(hyprctl getoption cursor:zoom_factor | awk 'NR==1 {factor = $2; if (factor < 1) {factor = 1}; print factor / 2.0}')"
+bind = $superMod CTRL, equal, exec, hyprctl keyword cursor:zoom_factor 1.0
+bind = $superMod CTRL, E, exec, hyprctl dispatch splitratio exact 0.5
+bind = $superMod CTRL, B, exec, hyprctl dispatch splitratio 0.3
+# bind = $altMod, space, exec, $(hyprctl activewindow -j | jq '.floating') && hyprctl dispatch cyclenext prev tiled || hyprctl dispatch cyclenext floating
+# to switch between windows in a floating workspace
+bind = SUPER, Tab, cyclenext, floating           # change focus to another window
+bind = SUPER, Tab, bringactivetotop    # bring it to the top
+
+
+
+bind = $superMod, W, exec, pkill -SIGUSR1 waybar
+bind = $superMod SHIFT, W, exec, $HOME/.config/waybar/style-switcher.sh
+
+bind = $superMod SHIFT, L, exec, pypr toggle file
+bind = $superMod SHIFT, V, exec, pypr toggle volume
+bind = $superMod SHIFT, RETURN, exec, pypr toggle term
+bind = $superMod SHIFT, Z, exec, pypr zoom
+
+
+
+bind = SUPER, U, togglespecialworkspace
+bind = SUPER SHIFT, U, movetoworkspace, special
+
+# group
+# bind = $superMod, G, togglegroup
+# bind = $superMod CTRL, tab, changegroupactive, f
+# bind = $superMod CTRL SHIFT, tab, changegroupactive, b
+
+# Apps binds
+# bind = $superMod, A, submap, User Apps
+# submap = User Apps
+# bind = , B, exec, $submapReset && $browser
+# bind = , F, exec, $submapReset && $fileManager
+# bind = , C, exec, $submapReset && $visualEditor
+# bind = , D, exec, $submapReset && discord
+# bind = , S, exec, $submapReset && spotify
+# bind = , T, exec, $submapReset && iMe
+# bind = , P, exec, $submapReset && hyprpicker -a
+# bind = , escape,submap,reset
+# submap = reset
+#
+# bind = $superMod SHIFT, A, submap, System Apps
+# submap = System Apps
+# bind = , P, exec, $submapReset && pavucontrol
+# bind = , W, exec, $submapReset && $powerMenu
+# bind = , Q, exec, $submapReset && hyprlock
+# bind = , escape,submap,reset
+# submap = reset
+
+# bind = $superMod, 1, workspace, 1
+# bind = $superMod, 2, workspace, 2
+# bind = $superMod, 3, workspace, 3
+# bind = $superMod, 4, workspace, 4
+# bind = $superMod, 5, workspace, 5
+# bind = $superMod, 6, workspace, 6
+# bind = $superMod, 7, workspace, 7
+# bind = $superMod, 8, workspace, 8
+# bind = $superMod, 9, workspace, 9
+# bind = $superMod, 0, workspace, 10
+bind = $superMod, 1, focusworkspaceoncurrentmonitor, 1
+bind = $superMod, 2, focusworkspaceoncurrentmonitor, 2
+bind = $superMod, 3, focusworkspaceoncurrentmonitor, 3
+bind = $superMod, 4, focusworkspaceoncurrentmonitor, 4
+bind = $superMod, 5, focusworkspaceoncurrentmonitor, 5
+bind = $superMod, 6, focusworkspaceoncurrentmonitor, 6
+bind = $superMod, 7, focusworkspaceoncurrentmonitor, 7
+bind = $superMod, 8, focusworkspaceoncurrentmonitor, 8
+bind = $superMod, 9, focusworkspaceoncurrentmonitor, 9
+bind = $superMod, 0, focusworkspaceoncurrentmonitor, 10
+
+bind = $superMod SHIFT, 1, movetoworkspacesilent, 1
+bind = $superMod SHIFT, 2, movetoworkspacesilent, 2
+bind = $superMod SHIFT, 3, movetoworkspacesilent, 3
+bind = $superMod SHIFT, 4, movetoworkspacesilent, 4
+bind = $superMod SHIFT, 5, movetoworkspacesilent, 5
+bind = $superMod SHIFT, 6, movetoworkspacesilent, 6
+bind = $superMod SHIFT, 7, movetoworkspacesilent, 7
+bind = $superMod SHIFT, 8, movetoworkspacesilent, 8
+bind = $superMod SHIFT, 9, movetoworkspacesilent, 9
+bind = $superMod SHIFT, 0, movetoworkspacesilent, 10
+
+bind = $superMod CTRL, 1, movetoworkspace, 1
+bind = $superMod CTRL, 2, movetoworkspace, 2
+bind = $superMod CTRL, 3, movetoworkspace, 3
+bind = $superMod CTRL, 4, movetoworkspace, 4
+bind = $superMod CTRL, 5, movetoworkspace, 5
+bind = $superMod CTRL, 6, movetoworkspace, 6
+bind = $superMod CTRL, 7, movetoworkspace, 7
+bind = $superMod CTRL, 8, movetoworkspace, 8
+bind = $superMod CTRL, 9, movetoworkspace, 9
+bind = $superMod CTRL, 0, movetoworkspace, 10
+
+
+bind = $superMod, period, workspace, e+1
+bind = $superMod, comma, workspace, e-1
+
+bindm = $superMod, mouse:272, movewindow
+bindm = $superMod, mouse:273, resizewindow
+
+# bind = $superMod, left, focusmonitor, HDMI-A-1
+# bind = $superMod, right, focusmonitor, eDP-1
+# bind = $superMod SHIFT, left, movewindow, mon:HDMI-A-1
+# bind = $superMod SHIFT, right, movewindow, mon:eDP-1
+# bind = $superMod, M, exec, $HOME/.config/hypr/scripts/focusmonitor.sh
+# bind = $superMod SHIFT, M, exec, $HOME/.config/hypr/scripts/movewindow.sh
+#
+# bind = $superMod, O, exec, ddcutil --display 1 setvcp D6 01 && sleep 0.2 && hyprctl dispatch focusmonitor HDMI-A-1
+# bind = $superMod SHIFT, O, exec, ddcutil --display 1 setvcp D6 04 && hyprctl dispatch focusmonitor eDP-1
+
+# bind = $superMod, D, exec, hyprctl keyword monitor "eDP-1, 1920x1080, 1920x0, 1"
+# bind = $superMod SHIFT, D, exec, hyprctl keyword monitor "eDP-1, disable"
+
+binde = $altMod, U, exec, $volume --inc
+binde = $altMod, D, exec, $volume --dec
+binde = $altMod, M, exec, $volume --toggle
+binde = $altMod, bracketright, exec, $brightness --inc
+binde = $altMod, bracketleft, exec, $brightness --dec
+bind = $altMod SHIFT, bracketright, exec, $brightness --mon-inc
+bind = $altMod SHIFT, bracketleft, exec, $brightness --mon-dec
+bind = $altMod CTRL, bracketright, exec, $brightness --high && $brightness --mon-high
+bind = $altMod CTRL, bracketleft, exec, $brightness --low && $brightness --mon-low
+
+bind = $altMod, B, submap, alt+b
+submap = alt+b
+bind = , C, exec, bt -c
+bind = , C, submap, reset
+bind = , D, exec, bt -d
+bind = , D, submap, reset
+bind = , F, exec, bt -f
+bind = , F, submap, reset
+bind = , escape,submap,reset
+submap = reset
+
+bind = $altMod SHIFT, M, submap, mediactrl
+submap = mediactrl
+bind = , N, exec, $submapReset && $mediaCtrl --nxt
+bind = , P, exec, $submapReset && $mediaCtrl --prv
+bind = , SPACE, exec, $submapReset && $mediaCtrl --pause
+bind = , S, exec, $submapReset && $mediaCtrl --stop
+bind = , escape,submap,reset
+submap = reset
+
+bind = $altMod SHIFT, S, exec, $normalScreenshot
+bind = $altMod, S, submap, screenshot
+submap = screenshot
+bind = , F, exec, $submapReset && $screenshot --now
+bind = , S, exec, $submapReset && $screenshot --area
+bind = , A, exec, $submapReset && $screenshot --active
+bind = , 5, exec, $submapReset && $screenshot --in5
+bind = , 0, exec, $submapReset && $screenshot --in10
+bind = , escape,submap,reset
+submap = reset
+
+bindl = , switch:off:Lid Switch,exec,echo "monitor = eDP-1, 1920x1080, 1920x0, 1" > ~/.config/hypr/configs/laptop-display.conf
+bindl = , switch:on:Lid Switch,exec,echo "monitor = eDP-1, disable" > ~/.config/hypr/configs/laptop-display.conf
+# bindl=,switch:Lid Switch, exec, ~/.config/hypr/scripts/LidSwitch.sh
+# bindl = , switch:off:Lid Switch,exec,hyprctl keyword monitor "eDP-1, 1920x1080, 1920x0, 1"
+# bindl = , switch:on:Lid Switch,exec,hyprctl keyword monitor "eDP-1, disable"

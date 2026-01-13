@@ -1,0 +1,5 @@
+color:
+  theme: custom
+  color: always
+icons:
+  when: always

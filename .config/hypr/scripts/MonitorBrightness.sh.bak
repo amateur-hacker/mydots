@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+
+iDIR="$HOME/.config/dunst/icons"
+step=10
+
+# Get brightness using ddcutil
+get_backlight() {
+  ddcutil --display 1 getvcp 10 2>/dev/null | awk -F 'value =' '/current value/ { gsub(",", "", $2); print $2 }' | awk '{print $1}'
+}
+
+# Get icon based on brightness level
+get_icon() {
+  current=$(get_backlight)
+  if [ "$current" -le 20 ]; then
+    icon="$iDIR/brightness-20.png"
+  elif [ "$current" -le 40 ]; then
+    icon="$iDIR/brightness-40.png"
+  elif [ "$current" -le 60 ]; then
+    icon="$iDIR/brightness-60.png"
+  elif [ "$current" -le 80 ]; then
+    icon="$iDIR/brightness-80.png"
+  else
+    icon="$iDIR/brightness-100.png"
+  fi
+}
+
+# Notify user
+notify_user() {
+  notify-send -e -h string:x-canonical-private-synchronous:brightness_notif \
+    -h int:value:$current -u low -i "$icon" "Brightness: $current%"
+}
+
+# Change brightness using ddcutil
+change_backlight() {
+  local current_brightness
+  current_brightness=$(get_backlight)
+
+  if [[ "$1" == "+${step}%" ]]; then
+    new_brightness=$((current_brightness + step))
+  elif [[ "$1" == "${step}%-" ]]; then
+    new_brightness=$((current_brightness - step))
+  fi
+
+  # Clamp value
+  if ((new_brightness < 5)); then
+    new_brightness=5
+  elif ((new_brightness > 100)); then
+    new_brightness=100
+  fi
+
+  ddcutil --display 1 setvcp 10 "$new_brightness" >/dev/null
+  current=$new_brightness
+  get_icon
+  notify_user
+}
+
+# Set brightness to specific value
+set_backlight() {
+  local target="$1"
+  ddcutil --display 1 setvcp 10 "$target" >/dev/null
+  current="$target"
+  get_icon
+  notify_user
+}
+
+# Execute accordingly
+case "$1" in
+"--get")
+  get_backlight
+  ;;
+"--inc")
+  change_backlight "+${step}%"
+  ;;
+"--dec")
+  change_backlight "${step}%-"
+  ;;
+"--low")
+  set_backlight 0
+  ;;
+"--high")
+  set_backlight 100
+  ;;
+*)
+  get_backlight
+  ;;
+esac

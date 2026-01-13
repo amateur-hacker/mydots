@@ -1,0 +1,108 @@
+@import "./colors.css";
+
+@define-color accent @lavender;
+
+* {
+  min-height: 0;
+  font-family: "JetBrainsMono NFP";
+  font-size: 13px;
+  font-weight: bold;
+  box-shadow: none;
+  text-shadow: none;
+  transition-duration: 0;
+}
+
+#workspaces,
+#cpu,
+#memory,
+#submap,
+#clock,
+#pulseaudio,
+#backlight,
+#battery,
+#bluetooth,
+#tray {
+  padding: 0 2px;
+}
+
+#network {
+  padding: 0 6px;
+}
+
+#tooltip {
+  background: @mantle;
+  border-radius: 10px;
+}
+
+tooltip label {
+  color: @mauve;
+  margin: 0 2px;
+}
+
+#workspaces button {
+  padding: 0;
+  color: @surface2;
+}
+
+#workspaces button.active {
+  color: @subtext1;
+}
+
+#workspaces button.urgent {
+  color: shade(@red, 0.9);
+}
+
+#workspaces button:not(.active):hover {
+  color: shade(@subtext0, 0.9);
+}
+
+#cpu {
+  color: @red;
+}
+
+#memory {
+  color: @yellow;
+}
+
+#submap {
+  color: @text;
+}
+
+#clock {
+  color: @pink;
+}
+
+#pulseaudio {
+  color: @blue;
+}
+
+#backlight {
+  color: @lavender;
+}
+
+#battery {
+  color: @mauve;
+}
+
+#battery.charging {
+  color: @teal;
+}
+
+@keyframes blink {
+  to {
+    color: @mauve;
+  }
+}
+
+#battery.critical:not(.charging) {
+  color: shade(@red, 0.9);
+  animation-name: blink;
+  animation-duration: 0.5s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+#custom-separator {
+  color: @text;
+}

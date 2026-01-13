@@ -1,0 +1,12 @@
+@import "./styles/colors.css";
+@import "./styles/common.css";
+
+window#waybar {
+  background: alpha(@mantle, 0.6);
+}
+
+.modules-left,
+.modules-center,
+.modules-right {
+  padding: 5px 10px;
+}

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+load_shell_globals() {
+  local config_files=(aliases envvars) name
+
+  for name in "${config_files[@]}"; do
+    local file_path="$HOME/.config/shell/$name"
+    if [[ -r "$file_path" ]]; then
+      source "$file_path"
+    fi
+  done
+}
+
+load_shell_globals

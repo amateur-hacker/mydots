@@ -1,0 +1,124 @@
+#  _____ _     _
+# |  ___(_)___| |__
+# | |_  | / __| '_ \
+# |  _| | \__ \ | | |
+# |_|   |_|___/_| |_|
+#
+
+set fish_greeting
+
+function fish_user_key_bindings
+    fish_vi_key_bindings
+    bind yy fish_clipboard_copy
+    bind Y fish_clipboard_copy
+    bind p fish_clipboard_paste
+end
+
+# Functions needed for !! and !$
+function __history_previous_command
+    switch (commandline -t)
+        case "!"
+            commandline -t $history[1]
+            commandline -f repaint
+        case "*"
+            commandline -i !
+    end
+end
+
+function __history_previous_command_arguments
+    switch (commandline -t)
+        case "!"
+            commandline -t ""
+            commandline -f history-token-search-backward
+        case "*"
+            commandline -i '$'
+    end
+end
+# The bindings for !! and !$
+if [ "$fish_key_bindings" = fish_vi_key_bindings ]
+    bind -M insert ! __history_previous_command
+    bind -M insert '$' __history_previous_command_arguments
+else
+    bind ! __history_previous_command
+    bind '$' __history_previous_command_arguments
+end
+
+function yazicd
+    replay "source $HOME/.config/yazi/yazi-cd '\$@'"
+end
+
+function search-configs
+    set config_dir $HOME/.config
+    set files cava/config dunst/dunstrc fish/config.fish hypr kitty/kitty.conf lf/lfrc mpv neofetch nvim/lua qt5ct/qt5ct.conf rofi scheduler swaylock tmux/tmux.conf waybar wezterm/wezterm.lua wlogout starship.toml zathura mimeapps.list
+
+    set file_paths
+
+    for file in $files
+        set -a file_paths (find $config_dir/$file -type f -not -path '*/wlogout/*.png')
+    end
+
+    find $file_paths -type f | sed "s|$HOME|~|" | fzf -m --header="search-configs" --header-first | sed "s|~|$HOME|" | xargs -r $EDITOR
+end
+
+function search_scripts
+    set scripts_dir $HOME/.local/bin/my-scripts
+    find $scripts_dir -type f | sed "s|$HOME|~|" | fzf -m --header="search_scripts" --header-first | sed "s|~|$HOME|" | xargs -r $EDITOR
+end
+
+function search_files_cwd
+    exa -af --git-ignore -I ".git" | fzf -m --header="search_files_cwd" --header-first | xargs -r $EDITOR
+end
+
+function search_nested_files_cwd
+    tree -Fifa --gitignore -I ".git" --noreport | grep -v "/\$" | sed 's|^\./||' | fzf -m --header="search_nested_files_cwd" --header-first | xargs -r $EDITOR
+end
+
+function select_dir_cwd
+    cd (exa -aD --git-ignore -I ".git" | fzf --header="select_dir_cwd" --header-first)
+end
+
+function select_nested_dir_cwd
+    cd (tree -fida --gitignore -I ".git" --noreport | tail -n +2 | sed 's|^\./||' | fzf --header="select_nested_dir_cwd" --header-first)
+end
+
+# bind -e--preset \co
+bind yy fish_clipboard_copy
+bind Y fish_clipboard_copy
+bind p fish_clipboard_paste
+bind -M insert -m default jk 'commandline -f repaint'
+bind -M insert \;o 'lfcd; commandline -f repaint'
+bind -M default \;o 'lfcd; commandline -f repaint'
+bind -M insert \;y 'yazicd; commandline -f repaint'
+bind -M default \;y 'yazicd; commandline -f repaint'
+bind -M insert \;h 'prevd; commandline -f repaint'
+bind -M default \;h 'prevd; commandline -f repaint'
+bind -M insert \;l 'nextd; commandline -f repaint'
+bind -M default \;l 'nextd; commandline -f repaint'
+bind -M insert \;c 'search-configs; commandline -f repaint'
+bind -M default \;c 'search-configs; commandline -f repaint'
+bind -M insert \;s 'search_scripts; commandline -f repaint'
+bind -M default \;s 'search_scripts; commandline -f repaint'
+bind -M insert \;f 'search_files_cwd; commandline -f repaint'
+bind -M default \;f 'search_files_cwd; commandline -f repaint'
+bind -M insert \;F 'search_nested_files_cwd; commandline -f repaint'
+bind -M default \;F 'search_nested_files_cwd; commandline -f repaint'
+bind -M insert \;d 'select_dir_cwd; commandline -f repaint'
+bind -M default \;d 'select_dir_cwd; commandline -f repaint'
+bind -M insert \;D 'select_nested_dir_cwd; commandline -f repaint'
+bind -M default \;D 'select_nested_dir_cwd; commandline -f repaint'
+bind -M visual -m default y 'fish_clipboard_copy; commandline -f end-selection repaint-mode'
+
+# Load shell globals
+function load_shell_globals
+    set -l file "$XDG_CONFIG_HOME/shell/load-shell-globals"
+    test -f $file && replay "source $file"
+end
+load_shell_globals
+
+if status is-interactive
+    fastfetch
+end
+
+### setting the starship prompt and zoxide ###
+starship init fish | source
+zoxide init --cmd cd fish | FZF_ALT_C_COMMAND= FZF_CTRL_T_COMMAND= source

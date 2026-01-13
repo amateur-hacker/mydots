@@ -1,0 +1,181 @@
+
+@import "colors"
+
+configuration {
+    modi: "drun,run,calc,emoji,filebrowser,window,ssh,combi";
+    show-icons: true;
+    icon-theme: "Tela-circle-blue-dark";
+
+    display-run:    "󱓞 ";
+    display-drun:   "󰣖 ";
+    display-calc: "󱖦 ";
+    display-emoji: "󰞅 ";
+    display-filebrowser: "󰉋 ";
+    display-window: "󱂬 ";
+    display-ssh:    "󰣀 ";
+    display-combi:  "󰕘 ";
+
+    drun-display-format: "{name}";
+    window-format: "{w} · {c} · {t}";
+
+    kb-row-up: "Up,Control+k,Shift+Tab,Shift+ISO_Left_Tab";
+    kb-row-down: "Down,Control+j";
+    kb-accept-entry: "Control+m,Return,KP_Enter";
+    kb-remove-to-eol: "Control+Shift+e";
+    kb-mode-next: "Shift+Right,Control+Tab";
+    kb-mode-previous: "Shift+Left,Control+ISO_Left_Tab";
+    kb-remove-char-back: "BackSpace";
+
+    calc {
+        no-bold: false;
+        terse: true;
+        no-history: true;
+        no-persist-history: false;
+        automatic-save-to-history: false;
+        calc-command-history: false;
+        calc-error-color: "Green";
+        calc-command: "wtype {result} && wl-copy {result}";
+        hint-result: "Result: ";
+        hint-welcome: "Calculator";
+    }
+}
+
+* {
+  font: "JetBrainsMono NFP 11";
+
+  bg:           rgba(30, 30, 46, 0.8);
+  bg1:          @mantle;
+  fg:           @text;
+  fg1:          @subtext0;
+  accent:       @mauve;
+
+  normal-bg:    transparent;
+  normal-fg:    @text;
+
+  active-bg:    @bg1;
+  active-fg:    @accent;
+
+  urgent-bg:    @red;
+  urgent-fg:    @base;
+
+  selected-bg:  @mauve;
+  selected-fg:  @base;
+}
+
+window {
+    padding: 12px;
+    background-color: @bg;
+    border: 2px solid;
+    border-color: @accent;
+    border-radius: 24px;
+    width: 480px;
+}
+
+mainbox {
+    padding: 0;
+    border: 0;
+}
+
+textbox {
+    text-color: @fg;
+}
+
+message {
+    padding:      1px ;
+    border:       0;
+}
+
+textbox {
+    text-color: @fg;
+}
+
+listview {
+    padding: 6px 0;
+    spacing: 6px;
+    fixed-height: true;
+    border: 0;
+    scrollbar: false;
+    lines: 8;
+}
+
+element {
+    padding: 8px 12px;
+    spacing: 8px;
+    border-radius: 16px;
+    cursor: pointer;
+}
+
+element normal.normal {
+    background-color: @normal-bg;
+    text-color: @text;
+}
+element normal.active {
+    background-color: @active-bg;
+    text-color: @active-fg;
+}
+element normal.urgent {
+    background-color: @urgent-bg;
+    text-color: @urgent-fg;
+}
+
+element selected.normal {
+    background-color: @accent;
+    text-color: @base;
+}
+element selected.active {
+    background-color: @selected-bg;
+    text-color: @selected-fg;
+}
+element selected.urgent {
+    background-color: @urgent-bg;
+    text-color: @urgent-fg;
+}
+
+element alternate.normal {
+    background-color: @normal-bg;
+    text-color:       @text;
+}
+element alternate.active {
+    background-color: @active-bg;
+    text-color: @active-fg;
+}
+element alternate.urgent {
+    background-color: @urgent-bg;
+    text-color: @urgent-fg;
+}
+
+element-icon {
+    size: 1.2em;
+    background-color: transparent;
+    text-color: inherit;
+    cursor: inherit;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    cursor: inherit;
+}
+
+inputbar {
+    padding: 6px 10px;
+    margin: 0 0 6px 0;
+    border: 2px solid;
+    border-color: @accent;
+    border-radius: 16px;
+    text-color: @fg;
+    children: [ "prompt", "entry" ];
+}
+
+prompt {
+    spacing:    0;
+    text-color: @fg;
+}
+
+entry {
+    // placeholder: "Type to filter...";
+    placeholder: "Search...";
+    placeholder-color: @fg1;
+    text-color: @fg;
+}
+

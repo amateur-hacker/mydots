@@ -1,0 +1,61 @@
+Gotcha — you want proper **Length × Width × Height** style dimensions for each necklace (the way Zoho Commerce’s product fields expect them).
+I’ll keep them realistic for imitation jewelry packaging measurements, not just the chain length.
+
+Here’s your updated list:
+
+---
+
+### 1. **Celeste Moonlight Necklace**
+
+* **Short Description:** Elegant gold-tone crescent moon necklace for a celestial touch.
+* **Long Description:** The Celeste Moonlight Necklace features a sleek crescent moon pendant in a polished gold-tone finish. Made from high-quality, skin-friendly alloy, this piece gives you the luxurious look of gold without the heavy price tag. Perfect for casual wear, parties, or gifting to someone special.
+* **Dimensions (L×W×H):** 45 × 2.5 × 0.5 cm
+* **Weight:** 12 g
+* **SKU:** JG-NE-001
+
+---
+
+### 2. **Aurora Bloom Necklace**
+
+* **Short Description:** Floral-inspired gold-finish necklace that shines all year round.
+* **Long Description:** Inspired by spring blooms, the Aurora Bloom Necklace showcases delicate flower designs in a rich gold-tone plating. Crafted from durable alloy, it’s lightweight, comfortable, and tarnish-resistant, making it ideal for everyday wear or special occasions. Enjoy the charm of gold without the expense.
+* **Dimensions (L×W×H):** 48 × 1.8 × 0.5 cm
+* **Weight:** 15 g
+* **SKU:** JG-NE-002
+
+---
+
+### 3. **Luna Pearl Drop Necklace**
+
+* **Short Description:** A classic pearl drop design in a gold-tone chain.
+* **Long Description:** The Luna Pearl Drop Necklace combines a timeless faux pearl pendant with a sleek gold-finish chain. It delivers the elegance of fine jewelry while being light, affordable, and easy to style with any outfit.
+* **Dimensions (L×W×H):** 42 × 1.2 × 0.8 cm
+* **Weight:** 10 g
+* **SKU:** JG-NE-003
+
+---
+
+### 4. **Serenity Crystal Choker**
+
+* **Short Description:** Gold-tone choker with sparkling imitation crystals.
+* **Long Description:** Add instant sparkle to your look with the Serenity Crystal Choker. Featuring precision-cut imitation crystals on a gold-finish band, this choker offers glamour without the high price. Perfect for parties, weddings, or a stylish night out.
+* **Dimensions (L×W×H):** 34 × 0.6 × 0.4 cm
+* **Weight:** 18 g
+* **SKU:** JG-NE-004
+
+---
+
+### 5. **Ethereal Heart Pendant Necklace**
+
+* **Short Description:** Romantic gold-look heart pendant for everyday charm.
+* **Long Description:** The Ethereal Heart Pendant Necklace is a simple yet meaningful accessory. With its gold-tone plating and lightweight design, it’s perfect for daily wear or as a thoughtful gift. Made from premium alloy for long-lasting shine.
+* **Dimensions (L×W×H):** 45 × 1.5 × 0.4 cm
+* **Weight:** 11 g
+* **SKU:** JG-NE-005
+
+---
+
+If you want, I can now **expand this to 15 products** and give them in a **Zoho-ready CSV file** with all these fields filled — so you just upload and your store is populated instantly.
+
+Do you want me to make that CSV for you?
+

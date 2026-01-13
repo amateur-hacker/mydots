@@ -1,0 +1,72 @@
+#!/usr/bin/env sh
+
+# Custom touch override for verbose output
+touch() {
+  local file
+  for file in "$@"; do
+    if [[ -e "$file" ]]; then
+      echo "touch: updated timestamp '$file'"
+    else
+      echo "touch: created file '$file'"
+    fi
+    command touch "$file"
+  done
+}
+
+# cd to folder when quitting yazi
+yazi_cd() {
+  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+  yazi "$@" --cwd-file="$tmp"
+  IFS= read -r -d '' cwd <"$tmp"
+  [ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+  command rm -f -- "$tmp"
+}
+
+# Searches for text in all files in the current folder
+ftext() {
+  local output
+  output=$(grep -iIHrn --color=always "$1" .)
+
+  if [[ -z "$output" ]]; then
+    echo "No matches found."
+    return 1
+  fi
+
+  local lines=$(printf '%s\n' "$output" | wc -l)
+  local screen_lines=$(tput lines)
+
+  if [ "$lines" -gt "$screen_lines" ]; then
+    printf '%s\n' "$output" | less -R
+  else
+    printf '%s\n' "$output"
+  fi
+}
+
+# Send a notification after long running command
+alert() {
+  last_command="$(fc -ln -1 | sed -e 's/^[[:space:]]*[0-9]\+[[:space:]]*//;s/[;&|][[:space:]]*alert$//')"
+  icon=$([ $? = 0 ] && echo terminal || echo error)
+  notify-send --urgency=low -i "$icon" "$last_command"
+}
+
+# Display internal and external IP
+whatismyip() {
+  echo -n "Internal IP: "
+  { ip addr show wlan0 2>/dev/null || ifconfig wlan0 2>/dev/null; } |
+    grep "inet " | awk '{print $2}' | cut -d/ -f1
+  echo -n "External IP: "
+  curl -s -4 ifconfig.me
+}
+
+# Count files, links, and directories
+countfiles() {
+  for t in files links directories; do
+    case "$t" in
+    files) type_char=f ;;
+    links) type_char=l ;;
+    directories) type_char=d ;;
+    esac
+    count=$(find . -type "$type_char" 2>/dev/null | wc -l)
+    echo "$count $t"
+  done
+}

@@ -1,0 +1,939 @@
+# email regex
+/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
+
+-- vim.filetype.add({
+--   extension = {
+--     png = "image",
+--     jpg = "image",
+--     jpeg = "image",
+--     webp = "image",
+--   },
+-- })
+
+Fish prefers to minimize the amount of magic syntax. In this case just type command ls to bypass the function of the same name. Which is also clearer and safer since you are being explicit. Since you don't want the normal order of resolution, function => builtin => command, it is better to say command whatever or builtin whatever.
+
+--neovim folds
+:mkview
+:loadview
+
+-- neovim nvim-surround aliases
+aliases = {
+    ["a"] = ">",
+    ["b"] = ")",
+    ["B"] = "}",
+    ["r"] = "]",
+    ["q"] = { '"', "'", "`" },
+    ["s"] = { "}", "]", ")", ">", '"', "'", "`" },
+},
+
+# irctc.co.in password
+amateurhacker2004
+St26042004
+St26042004@,
+Ah2Q6@x04ar
+
+# unicode selector
+ctrl+shift+u
+pm2
+
+-- vim.env.TERMINAL = "Neovim Terminal"
+
+swww img $HOME/Pictures/Wallpaper-Bank/wallpapers/Anime-girl.png  --transition-type grow --transition-pos top-right
+swww img $HOME/Pictures/Wallpaper-Bank/wallpapers/Anime-girl.png  --transition-type wipe --transition-angle 30
+
+page assist chrome extension
+
+# Neovim
+pu (put under)
+pu! (put above)
+gj, gk (line wrapping movement)
+gv (previous visual selection)
+gx, gf (open link and file)
+P (for paste without overwritten)
+:g/console/d (deletes all lines that contain console)
+:Gitsigns diffthis ~1 (for git diffs)
+:Telescope git_* (telescope git integration)
+ctrl+6 to switch between two buffers
+nvim -U minimal_setup.lua (to use different config file with neovim)
+ctrl+w ctrl+r (for rotating switch buffers)
+opt.equalalways = true (make window the same width when closing one)
+:g/span/d or :'<,'>! rg -v span (delete every that contains span)
+:%w !pandoc --no-highlight --wrap=none | wl-copy
+:'<,'> norm f,D
+:%s/, .*/, or :'<,'> norm f,C,
+:'<,'>g/background/norm! @a
+
+# flash the iso into usb
+dd bs=4M if=path/to/.iso of=device(lsblk) status=progress
+https://github.com/iconicFonts/iconic-fonts/tree/main
+
+
+# Set-up ImageKit ID
+7oripgicx
+
+"version": "1.0.0",
+"author": "amateur_hacker <amateurhacker2004@gmail.com>",
+"private": true,
+
+
+A .envrc file is used by the direnv tool to automatically load environment variables when you enter a directory and unload them when you leave the directory.
+Purpose of .envrc
+
+    Environment Management: It allows you to set environment variables that are specific to the project directory, without manually sourcing files or setting variables globally.
+    Automatic Loading: When you navigate into a directory containing a .envrc file, direnv will automatically load the environment variables defined in that file.
+    Security: Before direnv loads a new or modified .envrc file, it requires you to manually approve it (direnv allow), which helps protect against malicious changes.
+
+Example Use Case
+
+In a .envrc file, you can define your environment variables:
+
+bash
+
+export NODE_ENV=development
+export PORT=3000
+export MONGODB_URI="mongodb://localhost:27017/mydb"
+
+When you enter this directory, direnv will load these variables, and when you leave the directory, the variables will be unloaded, preventing them from affecting other projects.
+Installation and Usage
+
+    Install direnv:
+
+    bash
+
+sudo apt install direnv    # On Linux
+brew install direnv        # On macOS
+
+Configure your shell: Add this to your shell configuration file (e.g., .bashrc, .zshrc):
+
+bash
+
+eval "$(direnv hook bash)"  # for bash
+eval "$(direnv hook zsh)"   # for zsh
+
+Create a .envrc file in your project directory with your environment variables.
+
+Allow .envrc: After creating or modifying the file, you must allow it with:
+
+bash
+
+    direnv allow
+
+This makes .envrc particularly useful for managing project-specific environments and secrets without cluttering your global environment settings.
+
+
+
+    "build": "bun run typecheck && bun run lint && bun build ./src/*.ts --outdir=dist --packages=external --format=esm --splitting --target=bun",
+
+@font-face {
+  font-family: "pass";
+  font-style: normal;
+  font-weight: 400;
+  src: url("data:application/font-woff;charset=utf-8;base64,d09GRgABAAAAAATsAA8AAAAAB2QAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRNAAABWAAAABwAAAAcg9+z70dERUYAAAF0AAAAHAAAAB4AJwANT1MvMgAAAZAAAAA/AAAAYH7AkBhjbWFwAAAB0AAAAFkAAAFqZowMx2N2dCAAAAIsAAAABAAAAAQAIgKIZ2FzcAAAAjAAAAAIAAAACAAAABBnbHlmAAACOAAAALkAAAE0MwNYJ2hlYWQAAAL0AAAAMAAAADYPA2KgaGhlYQAAAyQAAAAeAAAAJAU+ATJobXR4AAADRAAAABwAAAAcCPoA6mxvY2EAAANgAAAAEAAAABAA5gFMbWF4cAAAA3AAAAAaAAAAIAAKAE9uYW1lAAADjAAAARYAAAIgB4hZ03Bvc3QAAASkAAAAPgAAAE5Ojr8ld2ViZgAABOQAAAAGAAAABuK7WtIAAAABAAAAANXulPUAAAAA1viLwQAAAADW+JM4eNpjYGRgYOABYjEgZmJgBEI2IGYB8xgAA+AANXjaY2BifMg4gYGVgYVBAwOeYEAFjMgcp8yiFAYHBl7VP8wx/94wpDDHMIoo2DP8B8kx2TLHACkFBkYA8/IL3QB42mNgYGBmgGAZBkYGEEgB8hjBfBYGDyDNx8DBwMTABmTxMigoKKmeV/3z/z9YJTKf8f/X/4/vP7pldosLag4SYATqhgkyMgEJJnQFECcMOGChndEAfOwRuAAAAAAiAogAAQAB//8AD3jaY2BiUGJgYDRiWsXAzMDOoLeRkUHfZhM7C8Nbo41srHdsNjEzAZkMG5lBwqwg4U3sbIx/bDYxgsSNBRUF1Y0FlZUYBd6dOcO06m+YElMa0DiGJIZUxjuM9xjkGRhU2djZlJXU1UDQ1MTcDASNjcTFQFBUBGjYEkkVMJCU4gcCKRTeHCk+fn4+KSllsJiUJEhMUgrMUQbZk8bgz/iA8SRR9qzAY087FjEYD2QPDDAzMFgyAwC39TCRAAAAeNpjYGRgYADid/fqneL5bb4yyLMwgMC1H90HIfRkCxDN+IBpFZDiYGAC8QBbSwuceNpjYGRgYI7594aBgcmOAQgYHzAwMqACdgBbWQN0AAABdgAiAAAAAAAAAAABFAAAAj4AYgI+AGYB9AAAAAAAKgAqACoAKgBeAJIAmnjaY2BkYGBgZ1BgYGIAAUYGBNADEQAFQQBaAAB42o2PwUrDQBCGvzVV9GAQDx485exBY1CU3PQgVgIFI9prlVqDwcZNC/oSPoKP4HNUfQLfxYN/NytCe5GwO9/88+/MBAh5I8C0VoAtnYYNa8oaXpAn9RxIP/XcIqLreZENnjwvyfPieVVdXj2H7DHxPJH/2/M7sVn3/MGyOfb8SWjOGv4K2DRdctpkmtqhos+D6ISh4kiUUXDj1Fr3Bc/Oc0vPqec6A8aUyu1cdTaPZvyXyqz6Fm5axC7bxHOv/r/dnbSRXCk7+mpVrOqVtFqdp3NKxaHUgeod9cm40rtrzfrt2OyQa8fppCO9tk7d1x0rpiQcuDuRkjjtkHt16ctbuf/radZY52/PnEcphXpZOcofiEZNcQAAeNpjYGIAg///GBgZsAF2BgZGJkZmBmaGdkYWRla29JzKggxD9tK8TAMDAxc2D0MLU2NjENfI1M0ZACUXCrsAAAABWtLiugAA")
+    format("woff");
+}
+
+
+pascal case
+
+
+
+type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
+
+type JsonObject = {
+  [key: string]: JsonValue;
+};
+
+type JsonArray = JsonValue[];
+
+type TData = JsonObject;
+
+
+await new Promise(resolve => setTimeout(resolve, 2000))
+
+
+// Default animation props
+const animationProps = {
+  initial: { "--x": "100%", scale: 0.8 },
+  animate: { "--x": "-100%", scale: 1 },
+  whileTap: { scale: 0.95 },
+  transition: {
+    repeat: Number.POSITIVE_INFINITY,
+    repeatType: "loop",
+    repeatDelay: 1,
+    type: "spring",
+    stiffness: 20,
+    damping: 15,
+    mass: 2,
+    scale: {
+      type: "spring",
+      stiffness: 200,
+      damping: 5,
+      mass: 0.5,
+    },
+  },
+} as AnimationProps;
+https://images.unsplash.com/10/hazy-trees.jpg?ixid=M3wxMTI1OHwwfDF8cmFuZG9tfHx8fHx8fHx8MTczMTk3MzM1Mnw&ixlib=rb-4.0.3&q=85&w=1920
+
+New optional dependencies for linux-zen
+    scx-scheds: to use sched-ext schedulers
+
+# arch-update script chat
+https://chatgpt.com/c/67439ade-494c-8011-9626-8dc9d4e64bb8
+
+// Helper function to convert local time to UTC
+const toUTC = (date: Date) => {
+  return new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+};
+
+// Helper function to convert UTC to local time
+const toLocal = (date: Date) => {
+  return new Date(date.getTime() + (date.getTimezoneOffset() * 60000));
+};
+
+higher order function
+https://splashy-gatsby-6ca.notion.site/Next-js-Image-Component-Cheat-Sheet-f2b311edbdd046e4bedbd7495829343c
+Recommendation
+
+For your pooja samagri search, the best approach depends on the scale of your data and application requirements:
+
+    Small Dataset (< 1000 items):
+    Fetch all items on page load and filter locally. This is simple and fast for small data sets.
+
+    Medium Dataset (1000–10,000 items):
+    Use a debounced fetch strategy to query the database dynamically. Add Redis caching if the database load is significant or if response times become a concern.
+
+    Large Dataset (> 10,000 items):
+    Use a combination of database and Redis. Fetch popular items or precomputed search results from Redis and query the database for less frequent queries.
+
+If you anticipate high traffic and frequent updates, Database + Redis is the most scalable and robust solution. For moderate traffic with less frequent updates, Debounced fetch with caching is a simpler alternative.
+
+"kill": "lsof -i :3000 -t >/dev/null && lsof -i :3000 -t | xargs kill",
+"dev": "npm run kill; next dev"
+
+const isActive =
+  pathname.replace(/\/(en|hi)/, "/") === path ||
+  pathname.split("/")[2] === path.split("/")[1];
+
+  https://www.30secondsofcode.org/css/s/hover-underline-animation/
+
+// biome-ignore format: <explanation>
+
+          name: sql`${poojaSamagriProducts.name}->>${locale}`,
+          description: sql`${poojaSamagriProducts.description}->>${locale}`,
+
+
+function encodeSlugify(str) {
+  return str
+    .toLowerCase() // Convert to lowercase
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/[^\w\-]+/g, '') // Remove non-alphanumeric characters
+    .replace(/\-\-+/g, '-') // Replace multiple hyphens with a single one
+    .replace(/^-+/, '') // Remove leading hyphens
+    .replace(/-+$/, ''); // Remove trailing hyphens
+}
+
+
+function decodeSlugify(slug) {
+  return slug
+    .replace(/-/g, ' ') // Replace hyphens with spaces
+    .replace(/\b\w/g, char => char.toUpperCase()); // Capitalize the first letter of each word
+}
+const locales = ["en", "hi"];
+if (locales.some(locale => pathname.includes(locale))) {
+  // Your code here
+}
+
+
+  console.log(
+    await db
+      .select()
+      .from(analytics)
+      .where(
+        sql`(payload->'userInfo'->'deviceInfo'->>'deviceType') = 'smartphone'`,
+      ),
+  );
+
+  // console.dir(pageViewAnalyticsData, { depth: null, colors: true });
+
+const formattedSelectedLanguage =
+  selectedLocale in languageMap
+    ? languageMap[selectedLocale as keyof typeof languageMap]
+    : selectedLocale.toUpperCase();
+https://ui-8dy8ykf4h-shadcn-pro.vercel.app/blocks
+<Link
+                      href={slide.button.path}
+                      className={cn(
+                        buttonVariants({ variant: "shineHover" }),
+                        "!mt-4 rounded-full border border-white/50 bg-orange-400 px-10 py-4 text-white",
+                      )}
+                    >
+                      {slide.button.label}
+                    </Link>
+
+
+const getAccountLinkStatus = async (
+  providers: string[] = ["google", "facebook"],
+) => {
+  return executeQuery({
+    queryFn: async ({ sessionUser }) => {
+      const linkedAccounts = await db
+        .select({ provider: accounts.provider })
+        .from(accounts)
+        .where(eq(accounts.userId, sessionUser?.id as string));
+
+      const accountStatus: Record<string, boolean> = {};
+
+      for (const provider of providers) {
+        accountStatus[provider] = false;
+      }
+
+      for (const account of linkedAccounts) {
+        if (account.provider in accountStatus) {
+          accountStatus[account.provider] = true;
+        }
+      }
+
+
+      return accountStatus;
+    },
+    isProtected: true,
+    serverErrorMessage: "Failed to fetch account link status",
+  });
+};
+
+what's if our app is globalized used multiple currencies like dollars and ruppees then how to stored that in database what's other big company uses like amazon, flipkart
+ChatGPT said:
+
+If your app supports multiple currencies (USD, INR, EUR, etc.), you need to follow industry best practices used by companies like Amazon, Flipkart, PayPal, and Stripe.
+🔹 Best Practices for Storing Multi-Currency Prices
+1️⃣ Use Integer for Price (Store Smallest Unit)
+
+✅ Store amounts in smallest currency unit (paisa for INR, cents for USD, etc.).
+✅ Avoid floating-point precision issues.
+✅ Works well with all payment gateways.
+2️⃣ Store Currency Code Separately
+
+✅ Use ISO 4217 currency codes (USD, INR, EUR).
+✅ Helps in conversions & payments.
+3️⃣ Store Exchange Rates (If Needed)
+
+✅ Keep an exchange rate table to convert prices dynamically.
+✅ Update rates periodically via an API (e.g., OpenExchangeRates, Forex API).
+🔹 Updated Database Schema for Multi-Currency Support
+
+Modify your schema to include a currency column and store amounts as integers.
+
+import { index, pgEnum, pgTable } from "drizzle-orm/pg-core";
+import { users } from "@/db/schema/user";
+import type { Locales } from "@/utils/locales";
+
+const currencyEnum = pgEnum("currency", ["INR", "USD", "EUR", "GBP", "AUD"]);
+
+const pujaSamagriProducts = pgTable(
+  "puja_samagri_products",
+  (t) => ({
+    id: t.uuid().notNull().primaryKey().$defaultFn(() => crypto.randomUUID()),
+    image: t.text(),
+    name: t.jsonb().notNull().$type<Locales>(),
+    price: t.integer().notNull(), // Store price in smallest unit (e.g., paisa, cents)
+    currency: currencyEnum().notNull().default("INR"), // Store currency code
+    description: t.jsonb().notNull().$type<Locales>(),
+    category: t.varchar({ length: 256 }).notNull(),
+  }),
+  (t) => [
+    {
+      nameIndex: index().on(t.name),
+      descriptionIndex: index().on(t.name),
+    },
+  ],
+);
+
+const pujaSamagriOrders = pgTable("puja_samagri_orders", (t) => ({
+  id: t.uuid().notNull().primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: t.uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
+  totalAmount: t.integer().notNull(), // Store amount in smallest unit
+  currency: currencyEnum().notNull().default("INR"), // Store currency
+  createdAt: t.timestamp().notNull().defaultNow(),
+}));
+
+const currencyExchangeRates = pgTable("currency_exchange_rates", (t) => ({
+  id: t.uuid().notNull().primaryKey().$defaultFn(() => crypto.randomUUID()),
+  baseCurrency: currencyEnum().notNull().default("USD"), // Base currency (e.g., USD)
+  targetCurrency: currencyEnum().notNull(), // Target currency (e.g., INR)
+  rate: t.numeric({ precision: 10, scale: 6 }).notNull(), // Store exchange rate
+  updatedAt: t.timestamp().notNull().defaultNow(), // Last update time
+}));
+
+🔹 How to Handle Multi-Currency Prices in Code?
+1️⃣ Convert Price Before Storing in DB
+
+const priceInRupees = "300.50"; // From UI
+const priceInPaisa = Math.round(parseFloat(priceInRupees) * 100);
+
+const product = {
+  name: { en: "Puja Thali", hi: "पूजा थाली" },
+  price: priceInPaisa, // Store in paisa
+  currency: "INR",
+};
+
+console.log(product);
+// { name: { en: "Puja Thali", hi: "पूजा थाली" }, price: 30050, currency: "INR" }
+
+2️⃣ Convert to Rupees/Dollars for Display
+
+const priceInPaisa = 30050; // Retrieved from DB
+const formattedPrice = (priceInPaisa / 100).toFixed(2);
+
+console.log(`₹${formattedPrice}`); // "₹300.50"
+
+3️⃣ Convert Between Currencies (Using Exchange Rates)
+
+Fetch exchange rate from currency_exchange_rates table or API.
+
+async function convertPrice(amount: number, fromCurrency: string, toCurrency: string) {
+  if (fromCurrency === toCurrency) return amount;
+
+  // Fetch exchange rate from DB (or external API)
+  const exchangeRate = await db.query.currencyExchangeRates.findFirst({
+    where: { baseCurrency: fromCurrency, targetCurrency: toCurrency },
+  });
+
+  if (!exchangeRate) throw new Error("Exchange rate not found");
+
+  return Math.round(amount * exchangeRate.rate);
+}
+
+const amountInUSD = await convertPrice(30050, "INR", "USD");
+console.log(amountInUSD); // Converted amount in cents
+
+🔹 Why This is the Best Approach?
+
+✅ Solves Precision Issues – Uses integers for calculations.
+✅ Handles Multi-Currency Payments – Works with Razorpay, Stripe, PayPal.
+✅ Scalable – Supports global pricing and easy conversions.
+✅ Used by Amazon, Flipkart, Stripe, PayPal, Google Pay.
+🚀 Final Thoughts
+
+1️⃣ Store amounts as integers (paisa, cents, etc.).
+2️⃣ Keep currency codes (INR, USD, EUR) separate.
+3️⃣ Use an exchange rate table for dynamic conversion.
+4️⃣ Convert only when displaying prices in UI.
+
+This is the industry-standard approach followed by Amazon, Flipkart, Stripe, PayPal, and Razorpay. 🚀
+
+Naivedyam@2025
+🕶 H4x0r
+
+
+Optional: Run ngrok in the Background
+
+If you want to keep it running in the background:
+
+nohup ngrok http 3000 > /dev/null 2>&1 &
+
+To stop ngrok, find the process and kill it:
+
+ps aux | grep ngrok
+kill <PROCESS_ID>
+
+:%s/price: "\(\d\+\)"/\=printf('price: "%d"', str2nr(submatch(1)) * 100)/g
+
+svg doodles
+
+bash -c "$(curl -sSL https://raw.githubusercontent.com/amateur-hacker/battery-notifier/main/install.sh)"
+
+
+-- local script_path = os.getenv("HOME") .. "/.config/yazi/plugins/system-clipboard.yazi/copy-to-clipboard.sh"
+-- local cmd = string.format("bash %s %s", script_path, table.concat(urls, " "))
+-- local success = os.execute(cmd)
+--
+-- if success then
+-- 	print("Successfully copied the file(s) to system clipboard")
+-- else
+-- 	print("Failed to copy files to clipboard")
+-- end
+
+
+# Ensure required commands are installed
+ensure_command() {
+  local missing=()
+
+  for cmd in "$@"; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+      missing+=("$cmd")
+    fi
+  done
+
+  if [ ${#missing[@]} -gt 0 ]; then
+    echo "${RED}The following command(s) are missing: ${missing[*]}${RESET}"
+    echo "${YELLOW}Would you like to install them? (y/N): ${RESET}"
+    read -r confirm
+
+    if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+      echo "${RED}Aborted. Please install the missing dependencies manually to proceed.${RESET}"
+      exit 1
+    fi
+
+    install_deps "${missing[@]}"
+  fi
+}
+tmux list-sessions -F '#{?session_attached,,#{session_name}}' |\
+          sed '/^$/d' |\
+          fzf --reverse --header jump-to-session |\
+          xargs tmux switch-client -t
+
+
+vim.api.nvim_echo({{"[DEPRECATED] nvim_notify() is deprecated, use vim.notify() instead", "WarningMsg"}}, true, {})
+fish-key-reader
+
+10–50k steps + workout + coding + clean diet + focus
+= Sachin 2.0 — the guy who builds empires while others chase dopamine.
+
+orgasm
+
+IndiaMart
+
+#!/usr/bin/env bash
+
+safe_rm() {
+  for path in "$@"; do
+    if [[ -e "$path" ]]; then
+      rm -rf "$path"
+      echo "🧹 Removed: $path"
+    else
+      echo "⚠️  Not found (skipped): $path"
+    fi
+  done
+}
+
+safe_rm "$1"
+https://gist.github.com/NickMcSweeney/3444ce99209ee9bd9393ae6ab48599d8
+Postgres:
+sudo -u postgres psql
+postgres=# create database mydb;
+postgres=# create user myuser with encrypted password 'mypass';
+postgres=# grant all privileges on database mydb to myuser;
+
+MySQL:
+mysql -u someadmin -p
+create database mydb;
+create user@localhost identified by 'somepassword';
+grant all privileges on mydb.* to user@localhost;
+
+# Display settings
+nwg-displays
+
+Zen browser: Default font (Noto Serif), Font Size: 16
+noto serif
+noto sans
+noto sans mono
+https://chatgpt.com/c/6832aa90-dd5c-8011-b765-0a769b659a9e
+
+wayvibes
+scrntime
+dotool
+
+#Starship Related
+https://chatgpt.com/c/683d8fee-332c-8011-8961-3dc37b2bf985
+
+{
+    key = 'c',
+    mods = 'CTRL',
+    action = wezterm.action_callback(function(window, pane)
+        selection_text = window:get_selection_text_for_pane(pane)
+        is_selection_active = string.len(selection_text) ~= 0
+        if is_selection_active then
+            window:perform_action(wezterm.action.CopyTo('ClipboardAndPrimarySelection'), pane)
+        else
+            window:perform_action(wezterm.action.SendKey{ key='c', mods='CTRL' }, pane)
+        end
+    end),
+}
+
+echo -e '\e]8;;https://archlinux.org\e\\Click me!\e]8;;\e\\'
+
+
+
+-- tab bar style
+-- -- The filled in variant of the < symbol
+local SOLID_LEFT_ARROW = wezterm.nerdfonts.nf_ple_upper_left_triangle
+-- local SOLID_LEFT_ARROW = wezterm.nerdfonts.ple_lower_right_triangle
+
+-- The filled in variant of the > symbol
+local SOLID_RIGHT_ARROW = wezterm.nerdfonts.nf_ple_upper_right_triangle
+-- local SOLID_RIGHT_ARROW = wezterm.nerdfonts.ple_upper_left_triangle
+local SLASH = wezterm.nerdfonts.fae_slash
+local ARROW_EXPAND_RIGHT = wezterm.nerdfonts.md_arrow_expand_right
+
+-- This function returns the suggested title for a tab.
+-- It prefers the title that was set via `tab:set_title()`
+-- or `wezterm cli set-tab-title`, but falls back to the
+-- title of the active pane in that tab.
+local function tab_title(tab_info)
+	local title = tab_info.tab_title
+	-- if the tab title is explicitly set, take that
+	if title and #title > 0 then
+		return title
+	end
+	-- Otherwise, use the title from the active pane
+	-- in that tab
+	return tab_info.active_pane.title
+end
+wezterm.on("format-tab-title", function(tab, _, _, _, hover, max_width)
+	local edge_background = "#11111B"
+	local background = "#11111B"
+	local foreground = "#181825"
+
+	if tab.is_active then
+		background = "#CBA6F7"
+		foreground = "#11111B"
+	elseif hover then
+		background = "#CBA6F7"
+		foreground = "#11111B"
+	else
+		background = "#181825"
+		foreground = "#CDD6F4"
+	end
+
+	local edge_foreground = background
+
+	local title = tab_title(tab)
+
+	-- ensure that the titles fit in the available space,
+	-- and that we have room for the edges.
+	title = wezterm.truncate_right(title, max_width - 2)
+
+	return {
+		{ Background = { Color = edge_background } },
+		{ Foreground = { Color = edge_foreground } },
+		{ Text = SOLID_LEFT_ARROW },
+		{ Background = { Color = background } },
+		{ Foreground = { Color = foreground } },
+		{ Text = "  " .. tab.tab_index + 1 .. ": " .. title .. "  " },
+		{ Background = { Color = edge_background } },
+		{ Foreground = { Color = edge_foreground } },
+		{ Text = SOLID_RIGHT_ARROW },
+	}
+end)
+
+2>/dev/null & ≠ >/dev/null 2>&1 &
+
+First one only silences errors.
+
+Second one silences everything.
+
+
+moreutils
+
+| Tool           | Description                                                                |
+| -------------- | -------------------------------------------------------------------------- |
+| **`sponge`**   | Absorbs input before writing to a file — perfect for `in-place` edits      |
+| **`ts`**       | Timestamps lines of input — great for logs (`ts '[%H:%M:%S]'`)             |
+| **`combine`**  | Boolean operations (AND/OR/NOT) on files line-by-line                      |
+| **`vidir`**    | Edit filenames in your `$EDITOR` like a boss                               |
+| **`vipe`**     | Pipe input to `$EDITOR` then pass it forward (like `tee` but interactive)  |
+| **`pee`**      | Like `tee` but sends input to multiple processes simultaneously            |
+| **`parallel`** | Run jobs in parallel (older alternative to GNU parallel)                   |
+| **`ifdata`**   | Show info about a network interface                                        |
+| **`ifne`**     | Run command **if** input is **not empty**                                  |
+| **`lckdo`**    | Run a command with a file lock                                             |
+| **`zrun`**     | Run a compressed script (e.g., `.gz`/`.xz`) without manually decompressing |
+| **`isutf8`**   | Check if file is valid UTF-8                                               |
+| **`errno`**    | Explain system error numbers (e.g., `errno 13` ⇒ "Permission denied")      |
+| **`chronic`**  | Run a command and only show output if it fails                             |
+| **`parallel`** | (Legacy) not as full-featured as GNU's `parallel`, but useful              |
+| **`sponge`**   | Worth mentioning twice. It's *that* useful.                                |
+
+
+termdown
+termdown $(qalc -t '2 * 60')
+
+satty
+eval $(hyprctl monitors -j | jq -r '.[] | select(.focused) | "hyprctl dispatch movecursor \((.x + .width/2 | floor)) \((.y + .height/2 | floor))"')
+pw-play, pa-play
+jp2a
+
+Optional dependencies for ctpv-git
+    atool: for archive files
+    bat: for text files [installed]
+    chafa: for image files on Wayland [installed]
+    colordiff: for diff files
+    diff-so-fancy: for diff files
+    elinks: for html files
+    ffmpeg: for audio files [installed]
+    ffmpegthumbnailer: for audio files [installed]
+    fontforge: for font files [installed]
+    git-delta: for diff files
+    glow: for markdown files [installed]
+    gnupg: for gpg-encrypted files [installed]
+    highlight: for text files
+    imagemagick: for svg files [installed]
+    jq: for json files [installed]
+    libreoffice-fresh: for office files
+    lynx: for html files
+    mdcat: for markdown files [installed]
+    perl-image-exiftool: for any files
+    poppler: for pdf files [installed]
+    source-highlight: for text files [installed]
+    transmission-cli: for torrent files
+    ueberzug: for image files on X11 [installed]
+    w3m: for html files [installed]
+    imagemagick [installed]
+
+connman
+
+fc
+neovim enew
+📁 dox   # docs
+📁 dwn   # downloads
+📁 msc   # music
+📁 pix   # pictures
+📁 vids  # videos
+
+conceal skim
+NE 	2 > /dev/null 	Silences stderr
+NUL 	> /dev/null 2>&1 	Silences both stdout and stderr
+
+dysk
+duf
+bass/replay
+
+
+# function load_shell_globals
+#     for file in envvars aliases
+#         set f "$HOME/.config/shell/$file"
+#         if test -f $f
+#             replay "source $f"
+#         end
+#     end
+# end
+# function load_shell_globals
+#     set envvars "$HOME/.config/shell/envvars"
+#     set aliases "$HOME/.config/shell/aliases"
+#     if test -f $envvars; and test -f $aliases
+#         replay "source $envvars && source $aliases"
+#     else if test -f $envvars
+#         replay "source $envvars"
+#     else if test -f $aliases
+#         replay "source $aliases"
+#     end
+# end
+
+# latest
+function load_shell_globals
+    set -l config_files \
+        envvars \
+        aliases
+
+    set -l sources ""
+    for name in $config_files
+        set -l path "$HOME/.config/shell/$name"
+        if test -f $path
+            set sources "$sources; source $path"
+        end
+    end
+
+    if test -n "$sources"
+        set sources (string trim --chars='; ' -- "$sources")
+        replay $sources
+    end
+end
+
+blesh-git
+glycin
+conceal skim
+xdg base directory specification
+nl -v 0 # line number
+xargs -r -I % $EDITOR %
+
+
+set -l bindings \
+    \;y yazi_cd \
+    \;h prevd \
+    \;l nextd \
+    \;c search_configs \
+    \;s search_scripts \
+    \;f search_files_cwd \
+    \;F search_nested_files_cwd \
+    \;d select_dir_cwd \
+    \;D select_nested_dir_cwd
+
+for i in (seq 1 2 (count $bindings))
+    set -l key $bindings[$i]
+    set -l func $bindings[(math $i + 1)]
+    bind -M insert $key "$func; commandline -f repaint"
+    # for mode in insert default
+    #     bind -M $mode $key "$func; commandline -f repaint"
+    # end
+end
+
+fc -El 0
+
+commitzen
+ghq
+hub cli
+mise
+direnv
+local pattern="${target//./\\.}"
+unp (archive)
+multitail
+https://base46.vercel.app/theme?name=catppuccin&lang=rust&terminal=kitty
+bottom (btm)
+gdu
+dust
+navi
+jless
+taskwarrior-cli (task)
+notes-cli
+nb
+# install using wget
+sudo wget https://raw.github.com/xwmx/nb/master/nb -O /usr/local/bin/nb &&
+  sudo chmod +x /usr/local/bin/nb &&
+  sudo nb completions install
+
+# install using curl
+sudo curl -L https://raw.github.com/xwmx/nb/master/nb -o /usr/local/bin/nb &&
+  sudo chmod +x /usr/local/bin/nb &&
+  sudo nb completions install
+
+gitall() {
+    git add .
+    if [ "$1" != "" ] # or better, if [ -n "$1" ]
+    then
+        git commit -m "$1"
+    else
+        git commit -m update
+    fi
+    git push
+}
+
+motion primitives
+react bits
+magic ui
+shadcn ui
+
+# ghostty option
+# gtk-adwaita = false
+# font-codepoint-map = U+0900-U+097F=Kalam
+# adjust-cell-height = 35%
+# adjust-cursor-height = 35%
+font_features        MapleMono-Regular +calt +liga
+font_features        MapleMono-Bold +calt +liga
+font_features        MapleMono-Italic +calt +liga
+font_features        MapleMono-BoldItalic +calt +liga
+
+
+# kitty option
+# Font rendering
+# modify_font cell_height 135%
+
+fish_key_reader
+yt-dlp -f "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]" --merge-output-format mp4 'https://youtu.be/hlvbDjksdCg?si=J-Fqf56qtR2ESdEa'
+ffmpeg -ss 00:00:09 -to 00:00:52 -i Guru\ Randhawa：\ Ban\ Ja\ Rani\ Video\ Song\ With\ Lyrics\ ｜\ Tumhari\ Sulu\ ｜\ Vidya\ Balan\ Manav\ Kaul\ \[hlvbDjksdCg\].mp4 -c copy fav-song.mp4
+
+# 42 second video size shrinked 16M to 9.5M
+ffmpeg -y -i input.mp4 -c:v libx264 -b:v 1650k -pass 1 -an -f mp4 /dev/null && \
+ffmpeg -i input.mp4 -c:v libx264 -b:v 1650k -pass 2 -c:a aac -b:a 96k output.mp4
+
+# 16:9 aspect ratio video to 9:16
+ffmpeg -i input.mp4 -vf "crop=ih*9/16:ih" -c:a copy output.mp4
+
+https://chatgpt.com/c/684f9710-352c-8011-856e-726f8564f796
+https://github.com/josean-dev/dev-environment-files
+lsd => next gen ls command
+
+file command
+more
+
+# alias pacif="pacman -Slq | fzf --multi --preview 'pacman -Si {1}' --preview-window=down:75% | xargs -ro sudo pacman -S"
+
+udiskie
+
+# Auto start Hyprland on tty1
+if test -z "$DISPLAY" ;and test "$XDG_VTNR" -eq 1
+    mkdir -p ~/.cache
+    exec Hyprland > ~/.cache/hyprland.log ^&1
+end
+
+https://github.com/doprz/dipc
+dipc - Convert your favorite images and wallpapers with your favorite color palettes/themes.
+
+// const pauseAll = () => {
+//   Object.values(audioRefs.current).forEach((audio) => {
+//     if (audio) {
+//       audio.pause();
+//       audio.currentTime = 0;
+//     }
+//   });
+// };
+//
+
+// useEffect(() => {
+//   if (loopMode) {
+//     pauseAll();
+//
+//     const currentIndex = todaysPrayers.findIndex((p) => {
+//       const audio = audioRefs.current[p.file];
+//       return audio && !audio.paused && !audio.ended;
+//     });
+//
+//     loopIndex.current = currentIndex !== -1 ? currentIndex : 0;
+//
+//     const playNext = () => {
+//       if (loopIndex.current >= todaysPrayers.length) return;
+//
+//       const audio = audioRefs.current[todaysPrayers[loopIndex.current].file];
+//       if (!audio) return;
+//
+//       audio.play();
+//
+//       audio.onended = () => {
+//         loopIndex.current++;
+//         timeoutRef.current = setTimeout(playNext, delayInSeconds * 1000);
+//       };
+//     };
+//
+//     playNext();
+//
+//     return () => {
+//       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+//     };
+//   } else {
+//     pauseAll();
+//   }
+// }, [loopMode, delayInSeconds]);
+
+# yazi cheatsheet
+https://ricoberger.de/cheat-sheets/yazi/
+
+krishna motivation videos link
+bloody mary part1
+https://youtu.be/rhDqueJ9Tw4?si=xYr54IQdFQxwrL3M
+bloody mary part2
+https://youtu.be/vnRBOUk7GC8?si=hEJ8_O26Aid5s5Mz
+memory reboot
+https://youtu.be/Mw6IgkGJdL0?si=Fi00wn9lDRf1GHA-
+
+
+mahabarat rap
+https://youtu.be/6ZqxXeFvS2E?si=pDHZigAAtqKLUHZ4
+safe-rm
+monaspace,operator mono,maple mono,ibm plex mono,jetbrains mono nerd font, fira code
+
+eric murphy
+dreamsofcode
+prasanth rangan
+distrotube
+linuxcast
+breadonpenguins
+jakoolit
+mylinuxforwork
+craftzdog
+hyde hyprland
+
+github-files-fetcher(fetcher)
+github-clone(ghclone)
+
+scrntime
+wayvibes

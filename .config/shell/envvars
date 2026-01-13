@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+# source global and interactive envvars files
+[ -f "$XDG_CONFIG_HOME/shell/envvars.global" ] && source "$XDG_CONFIG_HOME/shell/envvars.global"
+[ -f "$XDG_CONFIG_HOME/shell/envvars.interactive" ] && source "$XDG_CONFIG_HOME/shell/envvars.interactive"

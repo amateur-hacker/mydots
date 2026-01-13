@@ -1,0 +1,135 @@
+🟢 LEVEL 1 — Fundamentals (don’t rush, don’t be sloppy)
+
+These test whether you actually understand variables, loops, and arrays.
+
+Swap Without Temp
+
+Swap two numbers without using a third variable.
+
+Then explain why this works (not just code).
+
+Reverse an Array In-Place
+
+Input: [1,2,3,4,5]
+
+Output: [5,4,3,2,1]
+
+Constraint: O(1) extra space
+
+Count Positives, Negatives, Zeros
+
+Given an integer array, return counts of:
+
+positives
+
+negatives
+
+zeros
+
+Find the Largest & Second Largest
+
+One pass only.
+
+No sorting.
+
+Handle duplicates correctly.
+
+🟡 LEVEL 2 — Array Thinking (this is where people start failing)
+
+If you struggle here, your fundamentals are shaky.
+
+Move All Zeros to the End
+
+Input: [0,1,0,3,12]
+
+Output: [1,3,12,0,0]
+
+Must preserve order of non-zero elements.
+
+O(n), O(1).
+
+Find Missing Number (0 to n)
+
+Input: [3,0,1]
+
+Output: 2
+
+Constraint: O(n), O(1).
+
+Check If Array Is Sorted and Rotated
+
+Example valid:
+
+[3,4,5,1,2]
+
+Invalid:
+
+[3,4,1,5,2]
+
+Remove Duplicates In-Place (Sorted Array)
+
+Return new length.
+
+Modify array directly.
+
+🟠 LEVEL 3 — Index Mapping & In-Place Logic (serious DSA)
+
+These prepare you for real interview problems.
+
+First Missing Positive
+(You just learned this — now re-implement from memory.)
+
+Find All Numbers Missing in Range [1, n]
+
+Input: [4,3,2,7,8,2,3,1]
+
+Output: [5,6]
+
+O(n), no extra space.
+
+Find Duplicate Number
+
+Exactly one duplicate.
+
+No extra space.
+
+Don’t modify array.
+
+🔴 LEVEL 4 — “Are you actually good?” problems
+
+Most people can’t do these cleanly.
+
+Next Permutation
+
+Modify array in-place.
+
+Longest Subarray with Sum = K
+
+Positive numbers only → sliding window.
+
+Then solve with negatives allowed.
+
+Product of Array Except Self
+
+No division.
+
+O(n), O(1).
+
+Rules (follow or don’t bother)
+
+Use TypeScript
+
+No libraries
+
+No cheating with sort/set/map unless allowed
+
+Write clean code
+
+Explain your logic after coding
+
+Start here 👇
+
+Solve Level 1, Question 2: Reverse an array in-place
+
+Post your code.
+I’ll rip it apart if it’s bad — or approve it if it’s solid.

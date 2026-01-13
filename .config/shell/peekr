@@ -1,0 +1,192 @@
+#!/usr/bin/env bash
+
+# This script provides a collection of utility functions for quickly searching and opening
+# configuration files, scripts, and directories using fzf and other command-line tools.
+
+SCRIPT_NAME=$(basename "${BASH_SOURCE[0]:-$0}")
+
+# Dependency check
+check_dependencies() {
+  local missing=()
+  for cmd in "$@"; do
+    command -v "$cmd" >/dev/null || missing+=("$cmd")
+  done
+  if ((${#missing[@]})); then
+    echo "Missing dependencies: ${missing[*]}" | sed 's/ /, /g'
+    exit 1
+  fi
+}
+
+check_dependencies fzf eza tree xargs realpath
+
+# Load CONFIG_PATHS and SCRIPT_PATHS
+source "$HOME/.config/shell/peekr_paths"
+
+# Generate peekr_paths
+generate_paths() {
+  local cfg_file="$XDG_CONFIG_HOME/peekr/config.toml"
+  local output="$HOME/.config/shell/peekr_paths"
+
+  echo "#!/usr/bin/env bash" >"$output"
+  echo "# Auto-generated from $cfg_file" >>"$output"
+  echo "" >>"$output"
+
+  echo "declare -A CONFIG_PATHS=(" >>"$output"
+  for base in $(tomlq -r '.CONFIG_PATHS | keys[]' "$cfg_file"); do
+    entries=$(tomlq -r ".CONFIG_PATHS[\"$base\"][]" "$cfg_file" | paste -sd ' ' -)
+    echo "  [\"$base\"]=\"$entries\"" >>"$output"
+  done
+  echo ")" >>"$output"
+  echo "" >>"$output"
+
+  echo "declare -A SCRIPT_PATHS=(" >>"$output"
+  for base in $(tomlq -r '.SCRIPT_PATHS | keys[]' "$cfg_file"); do
+    entries=$(tomlq -r ".SCRIPT_PATHS[\"$base\"][]" "$cfg_file" | paste -sd ' ' -)
+    echo "  [\"$base\"]=\"$entries\"" >>"$output"
+  done
+  echo ")" >>"$output"
+
+  printf "\033[0;32m\u2713 peekr_paths regenerated at %s\033[0m\n" "$output"
+}
+
+# Helper: Clean and resolve selected paths, then open in editor
+open_selected_files() {
+  local header="$1"
+  shift
+
+  local selected=$(printf '%s\n' "$@" | sed "s|$HOME|~|" |
+    fzf -m --header="$header" --header-first |
+    sed "s|~|$HOME|" | sed 's/[*@/]$//')
+
+  [[ -z "$selected" ]] && return
+
+  local files=()
+  local sudo_files=()
+  while IFS= read -r filepath; do
+    [[ -z "$filepath" ]] && continue
+    local resolved=$(realpath "$filepath" 2>/dev/null)
+    [[ -w "$resolved" ]] && files+=("$resolved") || sudo_files+=("$resolved")
+  done <<<"$selected"
+
+  if [[ ${#files[@]} -gt 0 ]]; then
+    "$EDITOR" "${files[@]}"
+  fi
+
+  if [[ ${#sudo_files[@]} -gt 0 ]]; then
+    sudo -e "${sudo_files[@]}"
+  fi
+}
+
+# Function: Search config files
+search_configs() {
+  local file_paths=()
+  for base in "${!CONFIG_PATHS[@]}"; do
+    for entry in ${CONFIG_PATHS[$base]}; do
+      local target="$base/$entry"
+
+      if [[ "$entry" =~ [\(\)\|\*\+\?] ]]; then
+        local pattern="$target"
+
+        while IFS= read -r f; do
+          file_paths+=("$f")
+        done < <(find "$base" -regextype posix-extended -type f -regex "$pattern" 2>/dev/null)
+      else
+        [[ -e "$target" ]] || continue
+        while IFS= read -r f; do
+          file_paths+=("$f")
+        done < <(find "$target" -type f 2>/dev/null)
+      fi
+    done
+  done
+  open_selected_files "search_configs" "${file_paths[@]}"
+}
+
+# Function: Search script files
+search_scripts() {
+  local file_paths=()
+  for base in "${!SCRIPT_PATHS[@]}"; do
+    for entry in ${SCRIPT_PATHS[$base]}; do
+      local target="$base/$entry"
+
+      if [[ "$entry" =~ [\(\)\|\*\+\?] ]]; then
+        local pattern="$target"
+
+        while IFS= read -r f; do
+          file_paths+=("$f")
+        done < <(find "$base" -regextype posix-extended -type f -executable -regex "$pattern" 2>/dev/null)
+      else
+        [[ -e "$target" ]] || continue
+        while IFS= read -r f; do
+          file_paths+=("$f")
+        done < <(find "$target" -type f 2>/dev/null)
+      fi
+    done
+  done
+  open_selected_files "search_scripts" "${file_paths[@]}"
+}
+
+# Function: Search files in current directory
+search_files_cwd() {
+  local files=$(eza -1af --git-ignore --color=never -I ".git" |
+    grep -vE '/$' | grep -vE '^\.\.?$' | sed 's/[*@/]$//')
+  open_selected_files "search_files_cwd" "$files"
+}
+
+# Function: Search nested files
+search_nested_files_cwd() {
+  local files=$(tree -Fifa --gitignore -I ".git" --noreport |
+    grep -v '/$' | grep -vE '^\./\.\.?$' |
+    sed 's|^\./||; s/[*@/]$//')
+  open_selected_files "search_nested_files_cwd" "$files"
+}
+
+# Function: Select directory in current directory
+select_dir_cwd() {
+  local dir=$(eza -aD --git-ignore -I ".git" | grep -vE '^\.\.?$' |
+    fzf --header="select_dir_cwd" --header-first)
+  [[ -n "$dir" ]] && cd "$dir"
+}
+
+# Function: Select nested directory
+select_nested_dir_cwd() {
+  local dir=$(tree -fida --gitignore -I ".git" --noreport |
+    tail -n +2 | grep -vE '^\./\.\.?$' |
+    sed 's|^\./||; s/[*@/]$//' |
+    fzf --header="select_nested_dir_cwd" --header-first)
+  [[ -n "$dir" ]] && cd "$dir"
+}
+
+# Show usage
+usage() {
+  echo "Usage: $SCRIPT_NAME <action_name> [args...]"
+  echo
+  echo "Available functions:"
+  echo "  - generate_paths"
+  echo "  - search_configs"
+  echo "  - search_scripts"
+  echo "  - search_files_cwd"
+  echo "  - search_nested_files_cwd"
+  echo "  - select_dir_cwd"
+  echo "  - select_nested_dir_cwd"
+  echo
+  echo "Run '$SCRIPT_NAME -h' or '--help' for usage."
+  exit 0
+}
+
+# Entry point
+case "$1" in
+-h | --help | "")
+  usage
+  ;;
+*)
+  if declare -f "$1" >/dev/null; then
+    func="$1"
+    shift
+    "$func" "$@"
+  else
+    echo "Error: '$1' is not a valid action name."
+    echo
+    usage
+  fi
+  ;;
+esac
