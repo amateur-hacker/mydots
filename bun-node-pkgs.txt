@@ -1,0 +1,5 @@
+/home/amateur_hacker/.cache/.bun/install/global node_modules (114)
+[2m├──[0m @qwen-code/qwen-code[0m[2m@0.3.0[0m
+[2m├──[0m opencode-ai[0m[2m@1.0.142[0m
+[2m├──[0m tsx[0m[2m@4.21.0[0m
+[2m└──[0m yt-search[0m[2m@2.13.1[0m
