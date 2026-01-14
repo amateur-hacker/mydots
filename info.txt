@@ -1,0 +1,3 @@
+# To get explicitly installed packages
+pacman -Qqe
+paru -Qqm
