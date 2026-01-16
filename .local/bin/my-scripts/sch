@@ -1,0 +1,660 @@
+#!/usr/bin/env bash
+
+######################################################################################################
+# Script Name: sch
+# Description: This script allows you to add, list, and delete schedules.
+# Author: Amateur_Hacker
+# Version: 1.0
+######################################################################################################
+
+# Define script variables
+SCRIPT_NAME=$(basename "$0")
+VERSION="1.0"
+
+# Source configuration file
+eval source "$HOME/.config/scheduler/config"
+
+# Define directories and files related to the scheduler
+SCHEDULER_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/scheduler"
+SCHEDULE_DIR="$SCHEDULER_DATA_DIR/$(date +%B-%Y)"
+SCHEDULE_FILE="$SCHEDULE_DIR/schedules/$(date +%d).txt"
+SCHEDULE_STATUS_FILE="$SCHEDULE_DIR/schedule-statuses/$(date +%d).txt"
+
+# Define color variables
+ERROR="$(tput setaf 9)"
+SUCCESS="$(tput setaf 2)"
+WARNING="$(tput setaf 3)"
+INFO="$(tput setaf 4)"
+RESET="$(tput sgr0)"
+
+# Convert number to cardinal number
+number_to_cardinal() {
+  case $1 in
+  1) echo "One" ;;
+  2) echo "Two" ;;
+  3) echo "Three" ;;
+  4) echo "Four" ;;
+  5) echo "Five" ;;
+  6) echo "Six" ;;
+  7) echo "Seven" ;;
+  8) echo "Eight" ;;
+  9) echo "Nine" ;;
+  10) echo "Ten" ;;
+  *) echo "Number out of range" ;;
+  esac
+}
+
+# Convert number to ordinal number
+number_to_ordinal() {
+  case $1 in
+  1) echo "first" ;;
+  2) echo "second" ;;
+  3) echo "third" ;;
+  4) echo "fourth" ;;
+  5) echo "fifth" ;;
+  6) echo "sixth" ;;
+  7) echo "seventh" ;;
+  8) echo "eighth" ;;
+  9) echo "ninth" ;;
+  10) echo "tenth" ;;
+  *) echo "Number out of range" ;;
+  esac
+}
+
+# Display usage
+usage() {
+  echo "${INFO}Usage:${RESET} $SCRIPT_NAME [option] [argument]"
+  echo
+  echo "Options:"
+  echo "  -a, --add                               \"SCHEDULE\"   ${INFO}Add single or multiple schedules${RESET}"
+  echo "  -lus, --list-up-to-schedules            NUM          ${INFO}List schedules, up to NUM (default: 1)${RESET}"
+  echo "  -luS, --list-up-to-schedule-statuses    NUM          ${INFO}List schedule statuses, up to NUM (default: 1)${RESET}"
+  echo "  -dus, --delete-up-to-schedules          NUM          ${INFO}Delete schedules, up to NUM (default: 1)${RESET}"
+  echo "  -duS, --delete-up-to-schedule-statuses  NUM          ${INFO}Delete schedule statuses, up to NUM (default: 1)${RESET}"
+  echo "  -lss, --list-specific-schedule          NUM          ${INFO}List a specific schedule by number${RESET}"
+  echo "  -lsS, --list-specific-schedule-status   NUM          ${INFO}List a specific schedule status by number${RESET}"
+  echo "  -dss, --delete-specific-schedule        NUM          ${INFO}Delete a specific schedule by number${RESET}"
+  echo "  -dsS, --delete-specific-schedule-status NUM          ${INFO}Delete a specific schedule status by number${RESET}"
+  echo "  -las, --list-all-schedules                           ${INFO}List all schedules${RESET}"
+  echo "  -laS, --list-all-schedule-statuses                   ${INFO}List all schedule statuses${RESET}"
+  echo "  -das, --delete-all-schedules                         ${INFO}Delete all schedules${RESET}"
+  echo "  -daS, --delete-all-schedule-statuses                 ${INFO}Delete all schedule statuses${RESET}"
+  echo "  -u, --update                            NUM          ${INFO}Update a specific schedule by number${RESET}"
+  echo "  -r, --restart                                        ${INFO}Restart the scheduler program${RESET}"
+  echo "  -v, --version                                        ${INFO}Show version information${RESET}"
+  echo "  -h, --help                                           ${INFO}Show this help message${RESET}"
+  echo
+  echo "${INFO}Note:${RESET}"
+  echo "  ${WARNING}⚠️ Only one flag can be used at a time.${RESET}"
+  echo "  ${INFO}👉 Ex:${RESET} $SCRIPT_NAME -lss 1"
+}
+
+# Add single or multiple schedules
+add_schedule() {
+  is_valid_schedule() {
+    local schedule="$1"
+    [[ "$schedule" =~ ^[0-9]{2}\.\ [0-9]{2}:[0-9]{2}(AM|PM)\ .+\ \+[0-9]{1,2}[hms](\ [0-9]{1,2}[ms])?(\ [0-9]{1,2}[s])?$ ]]
+  }
+
+  print_usage() {
+    echo "${WARNING}📌 Please use one of the following formats when adding a new schedule:${RESET}"
+    echo "${INFO}➡️ When adding a single schedule${RESET}:"
+    echo '   sch -a "01. 05:00AM python +1h"'
+    echo '   sch -a "02. 01:00PM Web Development +1h 2m"'
+    echo '   sch -a "03. 04:00PM Bash scripting +2h 3m 4s"'
+    echo "${INFO}➡️ When adding multiple schedules:${RESET}"
+    echo '   sch -a "01. 05:00AM python +1h" "02. 01:00PM Web Development +1h 2m"'
+    echo '   sch -a "01. 05:00AM python +1h" "02. 01:00PM Web Development +1h 2m" "03. 04:00PM Bash scripting +1h 2m 3s"'
+  }
+
+  format_schedule_number() {
+    local number="$1"
+    local stripped_number=$((10#$number))
+    if ((stripped_number > 10)); then
+      echo "$stripped_number"
+    else
+      number_to_ordinal "$stripped_number"
+    fi
+  }
+
+  add_schedule_to_file() {
+    local schedule="$1"
+    local schedule_number="$2"
+    local ordinal_number="$3"
+    sed -i "/^$schedule_number\./d" "$SCHEDULE_FILE"
+    awk -v sch="$schedule" -v num="$schedule_number" '
+    BEGIN { inserted = 0 }
+    {
+      if ($0 ~ /^[0-9]+/) {
+        if ($1 > num && inserted == 0) {
+          print sch
+          inserted = 1
+        }
+      }
+      print
+    }
+    END {
+      if (inserted == 0) {
+        print sch
+      }
+    }
+    ' "$SCHEDULE_FILE" >"$SCHEDULE_FILE.tmp"
+    mv "$SCHEDULE_FILE.tmp" "$SCHEDULE_FILE"
+    success_msgs+=("${SUCCESS}📅 Added $ordinal_number schedule.${RESET}")
+  }
+
+  handle_limit_reached() {
+    local schedule="$1"
+    limit_schedules+=("   • $schedule")
+  }
+
+  handle_invalid_schedule() {
+    local schedule="$1"
+    invalid_schedules+=("   • $schedule")
+  }
+
+  process_valid_schedule() {
+    local schedule="$1"
+    local schedule_number
+    schedule_number=$(echo "$schedule" | grep -oE '^[0-9]+')
+    local ordinal_number
+    ordinal_number=$(format_schedule_number "$schedule_number")
+    local existing_schedule
+    existing_schedule=$(grep -E "^$schedule_number\." "$SCHEDULE_FILE")
+    if [ -n "$existing_schedule" ]; then
+      sed -i "s|^$schedule_number\..*|$schedule|" "$SCHEDULE_FILE"
+      success_msgs+=("${SUCCESS}✅ Updated $ordinal_number schedule.${RESET}")
+    elif [ "$schedule_number" -gt 10 ]; then
+      handle_limit_reached "$schedule"
+    else
+      add_schedule_to_file "$schedule" "$schedule_number" "$ordinal_number"
+    fi
+  }
+
+  if [[ $# -eq 0 ]]; then
+    echo "${ERROR}Invalid schedule format.${RESET}"
+    print_usage
+    return 1
+  fi
+
+  success_msgs=()
+  invalid_schedules=()
+  limit_msgs=()
+
+  for schedule in "$@"; do
+    if ! is_valid_schedule "$schedule"; then
+      handle_invalid_schedule "$schedule"
+    else
+      process_valid_schedule "$schedule"
+    fi
+  done
+
+  if ((${#success_msgs[@]} > 0)); then
+    for msg in "${success_msgs[@]}"; do
+      echo -e "$msg"
+    done
+    printed=1
+  fi
+
+  if ((${#invalid_schedules[@]} > 0)); then
+    [[ $printed -eq 1 ]] && echo ""
+    echo "${ERROR}❌ Invalid schedule format(s) found:${RESET}"
+    for schedule in "${invalid_schedules[@]}"; do
+      echo -e "$schedule"
+    done
+    print_usage
+    printed=1
+  fi
+
+  if ((${#limit_schedules[@]} > 0)); then
+    [[ $printed -eq 1 ]] && echo ""
+    echo "${ERROR}🚫 Limit reached! You can only keep 10 schedules per day.${RESET}"
+    for schedule in "${limit_schedules[@]}"; do
+      echo -e "$schedule"
+    done
+  fi
+
+  ((${#invalid_schedules[@]} > 0 || ${#limit_msgs[@]} > 0)) && return 1
+  return 0
+}
+
+# List schedule (up to number)
+list_up_to_schedules() {
+  local number="${1:-1}"
+  local direction="${DIRECTION:-${LIST_UP_TO_DIRECTION}}"
+
+  if ! [[ "$number" =~ ^[0-9]+$ ]] || ((number < 1 || number > 10)); then
+    echo "${ERROR}❌ Invalid number or out of range.${RESET}"
+    echo "${WARNING}⚠️ Use a number between 1 and 10.${RESET}"
+    return 1
+  fi
+
+  if ! grep -q 'AM\|PM' "$SCHEDULE_FILE"; then
+    echo "${INFO}🔍 No schedules found.${RESET}"
+    return 0
+  fi
+
+  case "$direction" in
+  "top")
+    grep "AM\|PM" "$SCHEDULE_FILE" | head -n "$number"
+    ;;
+  "bottom")
+    grep "AM\|PM" "$SCHEDULE_FILE" | tail -n "$number"
+    ;;
+  *)
+    echo "${ERROR}❌ Invalid direction.${RESET}"
+    echo "${SUCCESS}✔️ Valid directions are 'top' or 'bottom'.${RESET}"
+    return 1
+    ;;
+  esac
+}
+
+# List schedule statuses (up to number)
+list_up_to_schedule_statuses() {
+  local number="${1:-1}"
+  local direction="${DIRECTION:-${LIST_UP_TO_DIRECTION}}"
+
+  if ! [[ "$number" =~ ^[0-9]+$ ]] || ((number < 1 || number > 10)); then
+    echo "${ERROR}❌ Invalid number or out of range.${RESET}"
+    echo "${WARNING}⚠️ Use a number between 1 and 10.${RESET}"
+    return 1
+  fi
+
+  if ! grep -q 'Schedule-' "$SCHEDULE_STATUS_FILE"; then
+    echo "${INFO}🔍 No schedule statuses found.${RESET}"
+    return 0
+  fi
+
+  case "$direction" in
+  "top")
+    grep "Schedule-" "$SCHEDULE_STATUS_FILE" | head -n "$number"
+    ;;
+  "bottom")
+    grep "Schedule-" "$SCHEDULE_STATUS_FILE" | tail -n "$number"
+    ;;
+  *)
+    echo "${ERROR}❌ Invalid direction.${RESET}"
+    echo "${SUCCESS}✔️ Valid directions are 'top' or 'bottom'.${RESET}"
+    return 1
+    ;;
+  esac
+}
+
+# Delete schedules (up to number)
+delete_up_to_schedules() {
+  local number="${1:-1}"
+  local direction="${DIRECTION:-${DELETE_UP_TO_DIRECTION}}"
+
+  if ! [[ "$number" =~ ^[0-9]+$ ]] || ((number < 1 || number > 10)); then
+    echo "${ERROR}❌ Invalid number or out of range.${RESET}"
+    echo "${WARNING}⚠️ Use a number between 1 and 10.${RESET}"
+    return 1
+  fi
+
+  if ! grep -q 'AM\|PM' "$SCHEDULE_FILE"; then
+    echo "${INFO}🔍 No schedules found.${RESET}"
+    return 0
+  fi
+
+  local cardinal_number
+  cardinal_number=$(number_to_cardinal "$number")
+
+  case "$direction" in
+  "top")
+    awk -v num="$number" 'NR>11 && /AM|PM/{if (++count<=num) next}1' "$SCHEDULE_FILE" >temp.txt && mv temp.txt "$SCHEDULE_FILE"
+    ;;
+  "bottom")
+    tac "$SCHEDULE_FILE" | awk -v num="$number" '/AM|PM/{if (++count<=num) next}1' | tac >temp.txt && mv temp.txt "$SCHEDULE_FILE"
+    ;;
+  *)
+    echo "${ERROR}❌ Invalid direction.${RESET}"
+    echo "${SUCCESS}✔️ Valid directions are 'top' or 'bottom'.${RESET}"
+    return 1
+    ;;
+  esac
+
+  echo "${SUCCESS}✅ $cardinal_number schedule deleted from the $direction.${RESET}"
+}
+
+# Delete schedule statuses (up to number)
+delete_up_to_schedule_statuses() {
+  local number="${1:-1}"
+  local direction="${DIRECTION:-${DELETE_UP_TO_DIRECTION}}"
+
+  if ! [[ "$number" =~ ^[0-9]+$ ]] || ((number < 1 || number > 10)); then
+    echo "${ERROR}❌ Invalid number or out of range.${RESET}"
+    echo "${WARNING}⚠️ Use a number between 1 and 10.${RESET}"
+    return 1
+  fi
+
+  if ! grep -q 'Schedule-' "$SCHEDULE_STATUS_FILE"; then
+    echo "${INFO}🔍 No schedule statuses found.${RESET}"
+    return 0
+  fi
+
+  local cardinal_number
+  cardinal_number=$(number_to_cardinal "$number")
+
+  case "$direction" in
+  "top")
+    awk -v num="${number}" 'NR>11 && /Schedule-/{if (++count<=num) next}1' \
+      "$SCHEDULE_STATUS_FILE" >temp.txt && mv temp.txt "$SCHEDULE_STATUS_FILE"
+    ;;
+  "bottom")
+    tac "$SCHEDULE_STATUS_FILE" | awk -v num="${number}" '/Schedule-/{if (++count<=num) next}1' |
+      tac >temp.txt && mv temp.txt "$SCHEDULE_STATUS_FILE"
+    ;;
+  *)
+    echo "${ERROR}❌ Invalid direction.${RESET}"
+    echo "${SUCCESS}✔️ Valid directions are 'top' or 'bottom'.${RESET}"
+    return 1
+    ;;
+  esac
+
+  echo "${SUCCESS}✅ $cardinal_number schedule statuses deleted from the $direction.${RESET}"
+}
+
+# List specific number of  schedule
+list_specific_schedule() {
+  local number="$1"
+
+  if [[ -z "$number" ]]; then
+    echo "${ERROR}❌ Oops! You forgot to provide a number with the -lss flag.${RESET}"
+    echo "${WARNING}📌 To list a specific schedule, use the following format:${RESET}"
+    echo "   • sch -lss 1"
+    echo "   • sch -lss 4"
+    return 1
+  fi
+
+  if ! [[ "$number" =~ ^[0-9]+$ ]] || ((number < 1 || number > 10)); then
+    echo "${ERROR}❌ Invalid number or out of range.${RESET}"
+    echo "${WARNING}⚠️ Use a number between 1 and 10.${RESET}"
+    return 1
+  fi
+
+  if ! grep -q 'AM\|PM' "$SCHEDULE_FILE"; then
+    echo "${INFO}🔍 No schedules found.${RESET}"
+    return 0
+  fi
+
+  local formatted_number
+  formatted_number=$(printf "%02d" "$number")
+  local schedule
+  schedule=$(grep -E "^$formatted_number\." "$SCHEDULE_FILE")
+  local ordinal_number
+  ordinal_number=$(number_to_ordinal "$number")
+  capitalized_ordinal_number="${ordinal_number^}"
+
+  if [[ -z "$schedule" ]]; then
+    echo "${INFO}🔍 $capitalized_ordinal_number schedule not found.${RESET}"
+  else
+    echo "$schedule"
+  fi
+}
+
+# List specific number of completion
+list_specific_completion() {
+  local number="$1"
+
+  if [[ -z "$number" ]]; then
+    echo "${ERROR}❌ Oops! You forgot to provide a number with the -lsc flag.${RESET}"
+    echo "${WARNING}📌 To list a specific schedule status, use the following format:${RESET}"
+    echo "   • sch -lsc 1"
+    echo "   • sch -lsc 4"
+    return 1
+  fi
+
+  if ! [[ "$number" =~ ^[0-9]+$ ]] || ((number < 1 || number > 10)); then
+    echo "${ERROR}❌ Invalid number or out of range.${RESET}"
+    echo "${WARNING}⚠️ Use a number between 1 and 10.${RESET}"
+    return 1
+  fi
+
+  if ! grep -q 'Schedule-' "$SCHEDULE_STATUS_FILE"; then
+    echo "${INFO}🔍 No schedule statuses found.${RESET}"
+    return 0
+  fi
+
+  local formatted_number
+  formatted_number=$(printf "%02d" "$number")
+  local schedule_status
+  schedule_status=$(grep -E "^Schedule-$formatted_number\." "$SCHEDULE_STATUS_FILE")
+  ordinal_number=$(number_to_ordinal "$number")
+  capitalized_ordinal_number="${ordinal_number^}"
+
+  if [[ -z "$schedule_status" ]]; then
+    echo "${INFO}🔍 $capitalized_ordinal_number schedule status not found.${RESET}"
+  else
+    echo "$schedule_status"
+  fi
+}
+
+# Delete specific number of schedule
+delete_specific_schedule() {
+  local number="$1"
+
+  if [[ -z "$number" ]]; then
+    echo "${ERROR}❌ Oops! You forgot to provide a number with the -lsc flag.${RESET}"
+    echo "${WARNING}📌 To delete a specific schedule, use the following format:${RESET}"
+    echo "   • sch -dss 1"
+    echo "   • sch -dss 4"
+    return 1
+  fi
+
+  if ! [[ "$number" =~ ^[0-9]+$ ]] || ((number < 1 || number > 10)); then
+    echo "${ERROR}❌ Invalid number or out of range.${RESET}"
+    echo "${WARNING}⚠️ Use a number between 1 and 10.${RESET}"
+    return 1
+  fi
+
+  if ! grep -q 'AM\|PM' "$SCHEDULE_FILE"; then
+    echo "${INFO}🔍 No schedules found.${RESET}"
+    return 0
+  fi
+
+  local formatted_number
+  formatted_number=$(printf "%02d" "$number")
+  local ordinal_number
+  ordinal_number=$(number_to_ordinal "$number")
+  capitalized_ordinal_number="${ordinal_number^}"
+
+  local schedule
+  schedule=$(grep -E "^$formatted_number\." "$SCHEDULE_FILE")
+
+  if [[ -n $schedule ]]; then
+    sed -i "/^$formatted_number/d" "$SCHEDULE_FILE"
+    echo "${SUCCESS}✅ $capitalized_ordinal_number schedule deleted.${RESET}"
+  else
+    echo "${INFO}🔍 $capitalized_ordinal_number schedule not found.${RESET}"
+  fi
+}
+
+# Delete specific number of schedule status
+delete_specific_schedule_status() {
+  local number="$1"
+
+  if [[ -z "$number" ]]; then
+    echo "${ERROR}❌ Oops! You forgot to provide a number with the -lsc flag.${RESET}"
+    echo "${WARNING}📌 To delete a specific schedule status, use the following format:${RESET}"
+    echo "   • sch -dsc 1"
+    echo "   • sch -dsc 4"
+    return 1
+  fi
+
+  if ! [[ "$number" =~ ^[0-9]+$ ]] || ((number < 1 || number > 10)); then
+    echo "${ERROR}❌ Invalid number or out of range.${RESET}"
+    echo "${WARNING}⚠️ Use a number between 1 and 10.${RESET}"
+    return 1
+  fi
+
+  if ! grep -q 'Schedule-' "$SCHEDULE_STATUS_FILE"; then
+    echo "${INFO}🔍 No schedule statuses found.${RESET}"
+    return 0
+  fi
+
+  local formatted_number
+  formatted_number=$(printf "%02d" "$number")
+  local ordinal_number
+  ordinal_number=$(number_to_ordinal "$number")
+  capitalized_ordinal_number="${ordinal_number^}"
+
+  local schedule_status
+  schedule_status=$(grep -E "^Schedule-$formatted_number\." "$SCHEDULE_FILE")
+
+  if [[ -n $schedule_status ]]; then
+    sed -i "/^Schedule-$formatted_number/d" "$SCHEDULE_FILE"
+    echo "${SUCCESS}✅ $capitalized_ordinal_number schedule deleted.${RESET}"
+  else
+    echo "${INFO}🔍 $capitalized_ordinal_number schedule not found.${RESET}"
+  fi
+}
+
+# List all schedules
+list_all_schedules() {
+  if ! grep -q 'AM\|PM' "$SCHEDULE_FILE"; then
+    echo "${INFO}🔍 No schedules found.${RESET}"
+    return 0
+  fi
+
+  local schedules
+  schedules=$(grep 'AM\|PM' "$SCHEDULE_FILE")
+
+  echo "$schedules"
+}
+
+# List all schedule statuses
+list_all_schedule_statuses() {
+  if ! grep -q 'Schedule-' "$SCHEDULE_STATUS_FILE"; then
+    echo "${INFO}🔍 No schedule statuses found.${RESET}"
+    return 0
+  fi
+
+  local schedule_statuses
+  schedule_statuses=$(grep "Schedule-" "$SCHEDULE_STATUS_FILE")
+
+  echo "$schedule_statuses"
+}
+
+# Delete all schedules
+delete_all_schedules() {
+  if ! grep -q 'AM\|PM' "$SCHEDULE_FILE"; then
+    echo "${INFO}🔍 No schedules found.${RESET}"
+    return 0
+  fi
+
+  sed -i '/AM\|PM/d' "$SCHEDULE_FILE"
+  echo "${SUCCESS}✅ All schedules deleted.${RESET}"
+}
+
+# Delete all schedule statuses
+delete_all_schedule_statuses() {
+  if ! grep -q 'Schedule-' "$SCHEDULE_STATUS_FILE"; then
+    echo "${INFO}🔍 No schedule statuses found.${RESET}"
+    return 0
+  fi
+
+  sed -i '/Schedule-/d' "$SCHEDULE_STATUS_FILE"
+  echo "${SUCCESS}✅ All schedule statuses deleted.${RESET}"
+}
+
+# Update the scheduler
+update_scheduler() {
+  bash "$HOME/.cache/scheduler-updates/update-apply.sh"
+}
+
+# Restart the scheduler
+restart_scheduler() {
+  check_schedule_bg_status=$(pgrep -f "check-schedule")
+
+  if [[ -n "$check_schedule_bg_status" ]]; then
+    echo "${INFO}🛑 Killing the previous 'check-schedule' instance...${RESET}"
+    sleep 1s
+    pgrep -f "check-schedule" | xargs -r kill
+    echo "${SUCCESS}✅ Previous instance killed.${RESET}"
+  else
+    echo "${INFO}🔍 No previous 'check-schedule' instance found.${RESET}"
+  fi
+
+  echo "${INFO}🚀 Spawning a new 'check-schedule' instance as a background process...${RESET}"
+  sleep 1s
+  setsid -f "$HOME/.local/bin/check-schedule" >/dev/null 2>&1 &
+
+  echo "${SUCCESS}🎉 Scheduler restart completed.${RESET}"
+}
+
+# Display help options if no arguments are provided
+if [[ "$#" -eq 0 ]]; then
+  usage
+  exit 0
+fi
+
+# Main
+main() {
+  if [[ "$1" != "-a" && "$1" != "--add" && ($# -gt 2 || ($# -eq 2 && "$2" == -*)) ]]; then
+    echo "${ERROR}❌ Use one flag at a time.${RESET}"
+    echo "${INFO}👉 Example: sch -lss 1${RESET}"
+    return 1
+  fi
+
+  case "$1" in
+  -a | --add)
+    shift
+    add_schedule "$@"
+    ;;
+  -lus | --list-up-to-schedules)
+    list_up_to_schedules "$2"
+    ;;
+  -luS | --list-up-to-schedule-statuses)
+    list_up_to_schedule_statuses "$2"
+    ;;
+  -dus | --delete-up-to-schedules)
+    delete_up_to_schedules "$2"
+    ;;
+  -duS | --delete-up-to-schedule-statuses)
+    delete_up_to_schedule_statuses "$2"
+    ;;
+  -lss | --list-specific-schedule)
+    list_specific_schedule "$2"
+    ;;
+  -lsS | --list-specific-schedule-status)
+    list_specific_completion "$2"
+    ;;
+  -dss | --delete-specific-schedule)
+    delete_specific_schedule "$2"
+    ;;
+  -dsS | --delete-specific-schedule-status)
+    delete_specific_schedule_status "$2"
+    ;;
+  -las | --list-all-schedules)
+    list_all_schedules
+    ;;
+  -laS | --list-all-schedule-statuses)
+    list_all_schedule_statuses
+    ;;
+  -das | --delete-all-schedules)
+    delete_all_schedules
+    ;;
+  -daS | --delete-all-schedule-statuses)
+    delete_all_schedule_statuses
+    ;;
+  -u | --update)
+    update_scheduler "$2"
+    ;;
+  -r | --restart)
+    restart_scheduler
+    ;;
+  -h | --help)
+    usage
+    ;;
+  -v | --version)
+    echo "Sch $VERSION"
+    ;;
+  *)
+    echo "${ERROR}Invalid option:${RESET} $1"
+    usage
+    exit 1
+    ;;
+  esac
+}
+
+main "$@"

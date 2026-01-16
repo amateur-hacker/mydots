@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+tmp="$(mktemp -t yazi-picker.XXXXXX)"
+kitty --class "yazi-filechooser" -e yazi --chooser-file "$tmp"
+cat -- "$tmp"
+rm -f -- "$tmp"

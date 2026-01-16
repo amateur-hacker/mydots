@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+type="song"
+options="bestaudio"
+
+for arg in "$@"; do
+  if [ "$arg" = "-l" ]; then
+    type="lofi song"
+  elif [ "$arg" = "-v" ]; then
+    options="bestaudio+bestvideo"
+    video_type=$(echo -e "1. song\n2. lofi song\n3. external video" | fzf --layout=reverse --prompt="Select video type: " | sed 's/^[0-9]*\. //')
+    if [ -z "$video_type" ]; then
+      echo "Video type not selected. Exiting."
+      exit 1
+    else
+      if [ "$video_type" = "external" ]; then
+        type="video"
+      fi
+      type="$video_type"
+    fi
+  else
+    name="$arg"
+  fi
+done
+
+if [ -z "$name" ]; then
+  read -p "Enter your $type name: " name
+fi
+
+if [ -z "$name" ]; then
+  echo "Name not entered. Exiting."
+  exit 1
+fi
+
+echo "Searching: $name"
+if [[ "$name" == *"phir kabhi"* ]]; then
+  mpv --ytdl-format="$options" "https://www.youtube.com/watch?v=dJGGc3OgdrI"
+else
+  mpv --ytdl-format="$options" "ytdl://ytsearch:$name $type"
+fi

@@ -1,0 +1,152 @@
+#!/usr/bin/env bash
+
+# Define variables for color codes
+color_reset='\e[0m'
+color_red='\e[31m'
+color_yellow='\e[33m'
+color_green='\e[92m'
+color_turquoise='\e[38;2;132;201;202m'
+color_blue='\e[94m'
+color_light_pink='\e[95m'
+
+# Define ascii_name variable
+ascii_name=""
+
+# Define ASCII art options
+art_list=("boy" "ian_jones" "mouse" "tux" "unicornsay")
+
+# Function to retrieve last cached result
+get_last_cached_result() {
+  local cache_file="$HOME/.cache/ascii_cache"
+  local last_cached_result=""
+
+  if [[ -f "$cache_file" ]]; then
+    last_cached_result=$(tail -n 1 "$cache_file")
+  else
+    touch "$cache_file"
+    chmod 600 "$cache_file"
+  fi
+
+  echo "$last_cached_result"
+}
+
+# Function to save the latest result to cache
+save_to_cache() {
+  local cache_file="$HOME/.cache/ascii_cache"
+  local current_art=$1
+  local existing_art_count
+  existing_art_count=$(grep -c . "$cache_file")
+
+  # Check if the provided art is in the art list
+  if [[ "${art_list[*]}" =~ $current_art ]]; then
+    # Remove the oldest entry if the cache has reached the limit
+    if [[ $existing_art_count -ge 5 ]]; then
+      sed -i '1d' "$cache_file"
+    fi
+    echo "$current_art" >>"$cache_file"
+  fi
+}
+
+# Function to display system information
+display_system_info() {
+  # Retrieving system information
+  username="${color_turquoise}$(whoami)${color_reset}"
+  hostname="${color_turquoise}$(hostnamectl | awk '/Static hostname/ {print $3}')${color_reset}"
+  linux_distro=$(hostnamectl | awk -F ": " '/Operating System/ {print $2}')
+  service_manager=$(ps -p 1 -o comm=)
+  total_installed_packages=$(pacman -Qq | wc -l)
+  desktop_environment=${XDG_CURRENT_DESKTOP}
+  terminal=$(basename "$SHELL")
+  memory=$(free -m | awk '/^Mem:/ {print $4 "MiB / " $2 "MiB"}')
+
+  # Define icons for system information fields
+  distro_icon="${color_red}${color_reset}  "
+  systemd_icon="${color_yellow}${color_reset}  "
+  packages_icon="${color_green}${color_reset}  "
+  desktop_icon="${color_blue}${color_reset}  "
+  terminal_icon="${color_light_pink}${color_reset}  "
+  memory_icon="${color_light_pink}${color_reset}  "
+
+  # Format the system information
+  system_info=$(
+    printf "%-5s %-5s %-5s\n%-5s %-5s %-5s\n%-5s %-5s %-5s\n%-5s %-5s %-5s\n%-5s %-5s %-5s\n%-5s %-5s %-5s\n" \
+      "$distro_icon" "" "$linux_distro" \
+      "$systemd_icon" "" "$service_manager" \
+      "$packages_icon" "" "$total_installed_packages" \
+      "$desktop_icon" "" "$desktop_environment" \
+      "$terminal_icon" "" "$terminal" \
+      "$memory_icon" "" "$memory"
+  )
+
+  # Select a random ASCII art from the list or display ASCII art based on provided name
+  if [[ -z $ascii_name ]]; then
+    # Get last cached result
+    last_cached_result=$(get_last_cached_result)
+
+    # Find the index of the last displayed art
+    last_index=-1
+    for i in "${!art_list[@]}"; do
+      if [[ ${art_list[$i]} == "$last_cached_result" ]]; then
+        last_index=$i
+        break
+      fi
+    done
+
+    # Determine the next art to display
+    next_index=$(((last_index + 1) % ${#art_list[@]}))
+    selected_art=${art_list[$next_index]}
+
+    # Save the selected art to cache
+    save_to_cache "$selected_art"
+  else
+    if [[ "${art_list[*]}" =~ $ascii_name ]]; then
+      selected_art=$ascii_name
+    else
+      echo "Error: '$ascii_name' is not a valid ASCII art option." >&2
+      exit 1
+    fi
+  fi
+
+  # Displaying system information within a box with selected ASCII art
+  info_lines="$username@$hostname
+────────────────────── 
+$system_info"
+
+  # Displaying ASCII art followed by system information
+  echo -e "$info_lines" | boxes -d "$selected_art" -p "h3" | grep -v "jgs"
+}
+
+# Check for command line options
+while [[ $# -gt 0 ]]; do
+  case $1 in
+  -r | --random)
+    ascii_name=""
+    ;;
+  -n | --name)
+    shift
+    ascii_name=$1
+    ;;
+  -l | --list)
+    echo "Available ASCII art options:"
+    printf '%s\n' "${art_list[@]}"
+    exit 0
+    ;;
+  -h | --help)
+    echo "Usage: $(basename "$0") [-r|--random] [-n|--name <ascii_name>] [-l|--list]"
+    echo "Options:"
+    echo "  -r, --random      Display a random ASCII art (default)"
+    echo "  -n, --name <name> Display a specific ASCII art by name"
+    echo "  -l, --list        List all available ASCII art options"
+    echo "  -h, --help        Display this help message"
+    exit 0
+    ;;
+  *)
+    echo "Error: Unknown option '$1'" >&2
+    exit 1
+    ;;
+  esac
+  shift
+done
+
+# Display system information
+display_system_info

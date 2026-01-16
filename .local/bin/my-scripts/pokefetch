@@ -1,0 +1,143 @@
+#!/usr/bin/env bash
+
+######################################################################################################
+# Script Name : pokefetch
+# Description : Display Pokemon images directly in the terminal using their image graphics protocol.
+#               Supports listing all Pokemon, fetching a random one, or displaying a specific one.
+# Author      : Amateur Hacker
+# Source      : https://github.com/amateur-hacker/pokefetch
+######################################################################################################
+
+# Constants
+POKEMON_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/pokefetch"
+POKEMON_IMAGE_DIR="$POKEMON_DATA_DIR/pokemons"
+POKEMON_LIST_FILE="$POKEMON_DATA_DIR/pokemon-list.txt"
+POKEMON_NAMES_LIST=$(<"$POKEMON_LIST_FILE")
+RESIZED_IMAGE_PATH="/tmp/pokefetch_resized_pokemon.png"
+
+# Defaults
+should_display_name=1
+image_size="300x300"
+user_action="random"
+selected_pokemon=""
+terminal_type=""
+
+# Display help message
+print_help() {
+  echo "Usage: $(basename "$0") [options]"
+  echo ""
+  echo "Options:"
+  echo "  -l, --list              List all available Pokemon names"
+  echo "  -r, --random            Display a random Pokemon"
+  echo "  -n, --name <name>       Display a specific Pokemon by name"
+  echo "  -s, --size <WxH>        Resize image to specified size (default: 300x300)"
+  echo "  -N, --no-name           Do not display the Pokemon name above the image"
+  echo "  -h, --help              Show this help message"
+}
+
+# Ensure script is running in a supported terminal (Kitty, WezTerm, Ghostty)
+check_supported_terminal() {
+  if [[ -n "$KITTY_WINDOW_ID" ]]; then
+    terminal_type="kitty"
+  elif [[ "$TERM_PROGRAM" == "WezTerm" ]]; then
+    terminal_type="wezterm"
+  elif [[ -n "$GHOSTTY_RESOURCES_DIR" ]]; then
+    terminal_type="ghostty"
+  else
+    echo "Error: pokefetch only works in Kitty, WezTerm, or Ghostty terminals with graphics support."
+    exit 1
+  fi
+}
+
+# Resize and display Pokemon image
+render_image() {
+  local image_path="$1"
+  [[ "$should_display_name" -eq 1 ]] && echo -e "$(basename "${image_path%.*}")"
+  magick "$image_path" -resize "$image_size" "$RESIZED_IMAGE_PATH"
+
+  case "$terminal_type" in
+  kitty | ghostty)
+    kitten icat --align left "$RESIZED_IMAGE_PATH"
+    ;;
+  wezterm)
+    wezterm imgcat "$RESIZED_IMAGE_PATH"
+    ;;
+  *)
+    echo "Error: Unsupported terminal type."
+    exit 1
+    ;;
+  esac
+}
+
+# List all available Pokemon names
+list_all_pokemon_names() {
+  echo "$POKEMON_NAMES_LIST"
+}
+
+# Show a random Pokemon from the list
+display_random_pokemon() {
+  local total
+  total=$(echo "$POKEMON_NAMES_LIST" | wc -l)
+  local random_index=$((1 + RANDOM % total))
+  local random_name
+  random_name=$(echo "$POKEMON_NAMES_LIST" | sed -n "${random_index}p")
+  display_pokemon_by_name "$random_name"
+}
+
+# Display Pokemon image by name
+display_pokemon_by_name() {
+  local pokemon_name="$1"
+  local image_file="$POKEMON_IMAGE_DIR/${pokemon_name}.png"
+
+  if [[ -f "$image_file" ]]; then
+    render_image "$image_file"
+  else
+    echo "Error: Pokemon '${pokemon_name}' not found."
+    exit 1
+  fi
+}
+
+# Parse command-line arguments
+parse_cli_args() {
+  while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+    -l | --list) user_action="list" ;;
+    -r | --random) user_action="random" ;;
+    -n | --name)
+      shift
+      selected_pokemon="$1"
+      user_action="name"
+      ;;
+    -s | --size)
+      shift
+      image_size="${1:-300x300}"
+      ;;
+    -N | --no-name) should_display_name=0 ;;
+    -h | --help)
+      print_help
+      exit 0
+      ;;
+    *)
+      echo "Error: Unknown option '$1'"
+      print_help
+      exit 1
+      ;;
+    esac
+    shift
+  done
+}
+
+# Main function to handle script execution
+main() {
+  check_supported_terminal
+  parse_cli_args "$@"
+
+  case "$user_action" in
+  list) list_all_pokemon_names ;;
+  random) display_random_pokemon ;;
+  name) display_pokemon_by_name "$selected_pokemon" ;;
+  *) print_help ;;
+  esac
+}
+
+main "$@"

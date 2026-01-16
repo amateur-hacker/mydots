@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# Declare Variables
+SCRIPT_NAME=$(basename "$0")
+
+# Function to show usage if no program name is provided
+show_usage() {
+  echo "Usage: $SCRIPT_NAME <program_name>"
+  exit 1
+}
+
+# Function to check if the program is running and toggle it
+toggle_program() {
+  local program_name="$1"
+
+  if pgrep -x "$program_name" >/dev/null; then
+    notify-send "Killing $program_name..."
+    pkill -x "$program_name"
+  else
+    notify-send "Starting $program_name..."
+    setsid -f "$program_name" >/dev/null 2>&1 &
+  fi
+}
+
+# Main execution
+if [ -z "$1" ]; then
+  show_usage
+else
+  toggle_program "$1"
+fi

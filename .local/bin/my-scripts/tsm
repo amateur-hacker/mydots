@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+
+# Function to display help message
+function show_help() {
+  echo "Usage: $(basename "$0") [options]"
+  echo
+  echo "Options:"
+  echo "  -h, --help                Show this help message"
+  echo "  -j, --jump-to-session     Jump to an existing tmux session"
+  echo "  -c, --create-or-switch-session Create or switch to a tmux session"
+}
+
+# Function to jump to an existing tmux session
+function jump_to_session() {
+  session=$(tmux list-sessions -F '#{?session_attached,,#{session_name}}' | sed '/^$/d' | fzf --reverse --header="Jump to session")
+
+  if [[ -n "$session" ]]; then
+    if [[ -n "$TMUX" ]]; then
+      tmux switch-client -t "$session"
+    else
+      tmux attach -t "$session"
+    fi
+  else
+    echo "No session selected."
+  fi
+}
+
+# Function to create or switch to a tmux session
+function create_or_switch_session() {
+  if [[ $# -eq 1 ]]; then
+    selected=$1
+  else
+    selected=$(find ~/documents/web-development/my-stuffs ~/documents/github/my-repo ~/.local/bin/my-scripts ~/.config -mindepth 1 -maxdepth 1 -type d |
+      sed "s|^$HOME|~|" |
+      fzf --header="Pick a directory" --header-first |
+      sed "s|^~|$HOME|")
+  fi
+
+  # Exit if no directory selected
+  [[ -z "$selected" ]] && exit 0
+
+  # Normalize session name
+  selected_name=$(basename "$selected" | tr . _)
+
+  # Check if the session already exists
+  if ! tmux has-session -t "$selected_name" 2>/dev/null; then
+    tmux new-session -ds "$selected_name" -c "$selected"
+  fi
+
+  # Attach or switch to the tmux session
+  if [[ -z "$TMUX" ]]; then
+    tmux attach -t "$selected_name"
+  else
+    tmux switch-client -t "$selected_name"
+  fi
+}
+
+# Main function to handle flags
+function main() {
+  if [[ $# -eq 0 ]]; then
+    show_help
+    exit 0
+  fi
+
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+    -h | --help)
+      show_help
+      exit 0
+      ;;
+    -j | --jump-to-session)
+      jump_to_session
+      exit 0
+      ;;
+    -c | --create-or-switch-session)
+      if [[ -n "$2" ]]; then
+        create_or_switch_session "$2"
+        shift
+      else
+        create_or_switch_session
+      fi
+      exit 0
+      ;;
+    *)
+      echo "Invalid option: $1"
+      show_help
+      exit 1
+      ;;
+    esac
+  done
+}
+
+# Execute main function
+main "$@"

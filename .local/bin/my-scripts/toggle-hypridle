@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Check if hypridle is running
+if pgrep -x hypridle >/dev/null; then
+  # If it's running, kill it
+  pkill -9 hypridle
+  notify-send -r 9993 -t 1500 "Hypridle" "Disabled"
+else
+  # If it's not running, start it
+  setsid -f hypridle >/dev/null 2>&1 &
+  notify-send -r 9993 -t 1500 "Hypridle" "Enabled"
+fi

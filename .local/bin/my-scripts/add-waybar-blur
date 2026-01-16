@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+hyprctl --batch "keyword layerrule blur, waybar; keyword layerrule blurpopups, waybar; keyword layerrule ignorealpha 0.2, waybar"

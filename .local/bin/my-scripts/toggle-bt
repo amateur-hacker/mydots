@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Function to toggle Bluetooth
+toggle_bluetooth() {
+  if rfkill list bluetooth | grep -q "Soft blocked: yes"; then
+    rfkill unblock bluetooth
+    notify-send "Bluetooth Enabled"
+    setsid -f bluetooth-autoconnect >/dev/null 2>&1
+  else
+    rfkill block bluetooth
+    notify-send "Bluetooth Disabled"
+  fi
+}
+
+# Toggle bluetooth
+toggle_bluetooth

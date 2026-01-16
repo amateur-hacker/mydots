@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+# Define mappings of short names to actual bun run commands
+case "$1" in
+vd) bun run vercel:dev ;;                   # vercel dev
+vdp) bun run vercel:deploy ;;               # vercel deploy
+d) bun run dev ;;                           # dev (tsx watch ./src/app.ts)
+sd) bun run start:dev ;;                    # start in dev mode
+pb) bun run prebuild ;;                     # prebuild tasks
+b) bun run build ;;                         # build
+bw) bun run build:watch ;;                  # build and watch
+bs) bun run build:start ;;                  # build and start
+s) bun run start ;;                         # start server (node ./dist/app.js)
+tc) bun run typecheck ;;                    # typecheck (tsc --noEmit)
+l) bun run lint ;;                          # lint
+lf) bun run lint:fix ;;                     # lint and fix
+f) bun run format ;;                        # format code
+lfft) bun run lint:fix && bun run format ;; # lint, fix and format
+t) bun run test ;;                          # run tests
+tw) bun run test:watch ;;                   # run tests and watch
+cb) bun run clean:build ;;                  # clean build
+cv) bun run clean:vercel ;;                 # clean vercel
+c) bun run clean ;;                         # clean both
+*)
+  # echo "Unknown command: $1"
+  echo "Available commands:"
+  echo "  vd    -> vercel dev"
+  echo "  vdp   -> vercel deploy"
+  echo "  d     -> dev (tsx watch)"
+  echo "  sd    -> start in dev mode"
+  echo "  pb    -> prebuild"
+  echo "  b     -> build"
+  echo "  bw    -> build and watch"
+  echo "  bs    -> build and start"
+  echo "  s     -> start"
+  echo "  tc    -> typecheck"
+  echo "  l     -> lint"
+  echo "  lf    -> lint and fix"
+  echo "  f     -> format"
+  echo "  lfft  -> lint, fix, and format"
+  echo "  t     -> run tests"
+  echo "  tw    -> run tests and watch"
+  echo "  cb    -> clean build"
+  echo "  cv    -> clean vercel"
+  echo "  c     -> clean both"
+  ;;
+esac

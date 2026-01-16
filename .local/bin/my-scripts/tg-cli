@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+
+# Set the Telegram bot token
+token="6131054730:AAGpVQWhg6PVaUYatE3gRjOeju7AwhDerX0"
+
+# Get a list of updates from the Telegram API
+updates=$(curl -s "https://api.telegram.org/bot${token}/getUpdates")
+
+# Parse the list of updates to get a list of chat IDs
+chat_ids=(1554022319 1312493134 5044709237)
+# chat_ids=(1554022319)
+
+# Set the user name for the message
+user="𝘼𝙢𝙖𝙩𝙚𝙪𝙧 𝙃𝙖𝙘𝙠𝙚𝙧\n-----x--------x-------x-------x"
+
+# Check if the script is invoked with the -m option to send a message
+if [ "$1" = "-m" ]; then
+  # Shift the arguments to get the message text
+  shift
+  text="$1"
+
+  # Encode the message text using Python's urllib.parse.quote function
+  encoded_text=$(python3 -c "import urllib.parse; print(urllib.parse.quote(\"$user\n$text\"))")
+
+  # Loop through the chat IDs and send a message to each user
+  for chat_id in "${chat_ids[@]}"; do
+    # Construct the Telegram API request URL for sending a message
+    url_req="https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encoded_text}"
+
+    # Send the API request using curl and print the response
+    result=$(curl -s -X GET "$url_req")
+  done
+
+  echo "Message sent successfully"
+
+# Check if the script is invoked with the -f option to send a file or folder
+elif [ "$1" = "-f" ]; then
+  # Shift the arguments to get the file or folder path
+  shift
+  file_path="$1"
+
+  # Check if the path points to a directory, and if so, compress it into a ZIP file
+  if [ -d "$file_path" ]; then
+    file_name=$(basename "$file_path")
+    zip_file="${file_name}.zip"
+    zip -r "$zip_file" "$file_path"
+    file_path="$zip_file"
+  fi
+
+  # Loop through the chat IDs and send the file to each user
+  for chat_id in "${chat_ids[@]}"; do
+    # Construct the Telegram API request URL for sending a document
+    url_req="https://api.telegram.org/bot${token}/sendDocument"
+    result=$(curl -s -X POST "$url_req" -F chat_id="$chat_id" -F document=@"$file_path")
+
+    # Send a message to confirm the file has been sent
+    if [[ -d $1 || -f $1 ]]; then
+      if [[ -d $1 ]]; then
+        text="$user\nsent $1 folder."
+      else
+        text="$user\nsent $1 file."
+      fi
+    fi
+    # text="$user\nsent $1 file/folder"
+    encoded_text=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$text'))")
+    url_req1="https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encoded_text}"
+    result1=$(curl -s -X GET "$url_req1")
+  done
+
+  if [[ -d $1 || -f $1 ]]; then
+    if [[ -d $1 ]]; then
+      echo "Folder sent successfully."
+    else
+      echo "File sent successfully."
+    fi
+  else
+    echo "Failed to send file/folder."
+  fi
+
+  # Delete the temporary ZIP file (if any)
+  if [ -f "$zip_file" ]; then
+    rm -f "$zip_file"
+  fi
+
+# Check if the script is invoked with the -fm option to send a message and file/folder
+elif [ "$1" = "-fm" ]; then
+  # Shift the arguments to get the message text and file/folder path
+  shift
+  file_path="$1"
+  text="$2"
+
+  # Check if the file/folder path points to a directory, and if so, compress it into a ZIP file
+  if [ -d "$file_path" ]; then
+    file_name=$(basename "$file_path")
+    zip_file="${file_name}.zip"
+    zip -r "$zip_file" "$file_path"
+    file_path="$zip_file"
+  fi
+
+  # Loop through the chat IDs and send the file to each user
+  for chat_id in "${chat_ids[@]}"; do
+    # Construct the Telegram API request URL for sending a document
+    url_req="https://api.telegram.org/bot${token}/sendDocument"
+    result=$(curl -s -X POST "$url_req" -F chat_id="$chat_id" -F document=@"$file_path")
+
+    if [[ -d $1 || -f $1 ]]; then
+      encoded_text=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$user\n$text'))")
+      url_req1="https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encoded_text}"
+      result1=$(curl -s -X GET "$url_req1")
+    fi
+  done
+
+  if [[ -d $1 || -f $1 ]]; then
+    if [[ -d $1 ]]; then
+      echo "Folder and message sent successfully."
+    else
+      echo "File and message sent successfully."
+    fi
+  else
+    echo "Failed to send file/folder and message."
+  fi
+
+  # Delete the temporary ZIP file (if any)
+  if [ -f "$zip_file" ]; then
+    rm -f "$zip_file"
+  fi
+
+# If the script is not invoked with a valid option, print the usage message and exit with an error code
+else
+  echo "Usage: $0 -m MESSAGE"
+  echo "       $0 -f FILE_OR_FOLDER_PATH"
+  echo "       $0 -fm FILE_OR_FOLDER_PATH MESSAGE"
+  exit 1
+fi

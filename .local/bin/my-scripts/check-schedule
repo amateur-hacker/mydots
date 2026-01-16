@@ -1,0 +1,190 @@
+#!/usr/bin/env bash
+
+######################################################################################################
+# Script Name: check-schedule
+# Description: A script that reads a schedule file and performs schedule at the scheduled times,
+#              playing audio notifications for the schedule and prompting the user to confirm completion.
+# Author: Amateur_Hacker
+######################################################################################################
+
+LOCKFILE=/tmp/scheduler.lock
+
+# Cleanup function to remove the lock file upon exit or interruption
+cleanup() {
+  rm -f "$LOCKFILE"
+  exit
+}
+
+# Trap cleanup function to run on INT, TERM, and EXIT signals
+trap cleanup INT TERM EXIT
+
+# Check if another scheduler instance is running using the lock file
+if [[ -e $LOCKFILE ]] && kill -0 "$(cat $LOCKFILE)" 2>/dev/null; then
+  echo "Scheduler is already running"
+  exit 1
+fi
+
+# Create a lock file to ensure only one instance of the scheduler runs
+echo $$ >$LOCKFILE
+
+# Source the configuration file
+eval source "$HOME/.config/scheduler/config"
+
+# Validate that COMPLETION_PROMPT is either "rofi" or "dmenu"
+if [[ -n "$COMPLETION_PROMPT" && "$COMPLETION_PROMPT" != "rofi" && "$COMPLETION_PROMPT" != "dmenu" ]]; then
+  echo "Error: COMPLETION_PROMPT must be either 'rofi' or 'dmenu' if defined."
+  exit 1
+fi
+
+# Define directories and files related to the scheduler
+SCHEDULER_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/scheduler"
+SCHEDULE_DIR="$SCHEDULER_DATA_DIR/$(date +%B-%Y)"
+SCHEDULE_FILE="$SCHEDULE_DIR/schedules/$(date +%d).txt"
+SCHEDULE_STATUS_FILE="$SCHEDULE_DIR/schedule-statuses/$(date +%d).txt"
+SCHEDULER_VOICES_DIR="$SCHEDULER_DATA_DIR/voices"
+
+# Ensure the existence of a directory
+ensure_directory_exists() {
+  local dir="$1"
+  [[ ! -d "$dir" ]] && mkdir -p "$dir"
+}
+
+# Ensure the existence of a file
+ensure_file_exists() {
+  local file="$1"
+  [[ ! -f "$file" ]] && touch "$file"
+}
+
+# Get the schedule details for the current time from the schedule file
+get_schedule_details() {
+  local current_time="$1"
+  local schedule_num schedule_time schedule completion_time
+
+  local schedule_line
+  schedule_line=$(grep "$current_time" "$SCHEDULE_FILE")
+
+  schedule_num=$(echo "$schedule_line" | cut -d '.' -f1)
+  schedule_time=$(echo "$schedule_line" | cut -d ' ' -f2)
+  schedule=$(echo "$schedule_line" | awk '{for(i=3;i<=NF-2;i++) printf "%s ",$i; print $(NF-1)}' | cut -d '+' -f1)
+  completion_time=$(echo "$schedule_line" | awk -F '+' '{print $2}' | awk '{$1=$1;print}')
+
+  echo "$schedule_num|$schedule_time|$schedule|$completion_time"
+}
+
+# Update the status of a specific schedule in the status file
+update_schedule_status() {
+  local schedule_num="$1"
+  local schedule="$2"
+
+  local existing_schedule_status
+  existing_schedule_status=$(grep -E "^Schedule-$schedule_num\." "$SCHEDULE_STATUS_FILE")
+
+  if [[ -n "$existing_schedule_status" ]]; then
+    sed -i "s|^Schedule-$schedule_num\..*|Schedule-$schedule_num. $schedule|" "$SCHEDULE_STATUS_FILE"
+  else
+    sed -i "/^Schedule-$schedule_num\./d" "$SCHEDULE_STATUS_FILE"
+    awk -v sch="Schedule-$schedule_num. $schedule" -v num="$schedule_num" '
+      BEGIN {
+        inserted = 0;
+      }
+      {
+        if ($0 ~ /^Schedule-[0-9]+\./) {
+          split($0, arr, /[.-]/);
+          schedule_number = arr[2];
+          if (schedule_number > num && inserted == 0) {
+            print sch;
+            inserted = 1;
+          }
+        }
+        print;
+      }
+      END {
+        if (inserted == 0) {
+          print sch;
+        }
+      }
+    ' "$SCHEDULE_STATUS_FILE" >"$SCHEDULE_STATUS_FILE.tmp"
+    mv "$SCHEDULE_STATUS_FILE.tmp" "$SCHEDULE_STATUS_FILE"
+  fi
+}
+
+# Send a desktop notification for the schedule
+send_schedule_notification() {
+  local schedule_num="$1"
+  local schedule="$2"
+
+  notify-send -i '/usr/share/icons/scheduler-icon.svg' "$schedule_num. $schedule" -t 10000
+}
+
+# Play the corresponding sound for the schedule number
+play_schedule_sound() {
+  local schedule_num="$1"
+  mpv "$SCHEDULER_VOICES_DIR/$VOICE/$schedule_num.wav"
+}
+
+# Prompt the user to confirm schedule completion and update the status accordingly
+handle_schedule_completion() {
+  local schedule_num="$1"
+  local PROMPT_TIMEOUT=60
+  local completion_prompt_menu=${DEFAULT_CONFIRMATION_MENU:-"rofi"}
+  local user_choice
+
+  schedule_confirm_menu() {
+    printf "1. Yes\n"
+    printf "2. No"
+  }
+
+  if [[ $completion_prompt_menu == "rofi" ]]; then
+    user_choice=$(schedule_confirm_menu | timeout "${PROMPT_TIMEOUT}s" rofi -dmenu -i -l 20 -p "Choose option:" | awk '{ print substr( $0, 4 ) }')
+  elif [[ $completion_prompt_menu == "dmenu" ]]; then
+    user_choice=$(schedule_confirm_menu | timeout "${PROMPT_TIMEOUT}s" dmenu -i -l 20 -p "Choose option:" | awk '{ print substr( $0, 4 ) }')
+  fi
+
+  if [ -z "$user_choice" ]; then
+    user_choice="No"
+  fi
+
+  if [[ $user_choice == "Yes" ]]; then
+    mpv "$SCHEDULER_VOICES_DIR/$VOICE/complete.wav"
+    sed -i "/^Schedule-$schedule_num\./ {/ \[✔] Completed\| \[X] Not Completed/! s/$/ [✔] Completed/}" "$SCHEDULE_STATUS_FILE"
+  else
+    mpv "$SCHEDULER_VOICES_DIR/$VOICE/notcomplete.wav"
+    sed -i "/^Schedule-$schedule_num\./ {/ \[✔] Completed\| \[X] Not Completed/! s/$/ [X] Not Completed/}" "$SCHEDULE_STATUS_FILE"
+  fi
+}
+
+# Process the schedule based on the current time
+process_schedule() {
+  current_time="$1"
+
+  schedule_details=$(get_schedule_details "$current_time")
+  IFS='|' read -r schedule_num schedule_time schedule completion_time <<<"$schedule_details"
+
+  if [[ $current_time == "$schedule_time" ]]; then
+    update_schedule_status "$schedule_num" "$schedule"
+    send_schedule_notification "$schedule_num" "$schedule"
+    play_schedule_sound "$schedule_num"
+    sleep "$completion_time"
+
+    mpv "$SCHEDULER_VOICES_DIR/$VOICE/askcomplete.wav"
+    sleep 2s
+
+    handle_schedule_completion "$schedule_num"
+  fi
+}
+
+# Main loop to keep the scheduler running continuously
+while true; do
+  current_time=$(date +%I:%M%p)
+
+  ensure_directory_exists "$SCHEDULE_DIR/schedules"
+  ensure_directory_exists "$SCHEDULE_DIR/schedule-statuses"
+
+  ensure_file_exists "$SCHEDULE_FILE"
+  ensure_file_exists "$SCHEDULE_STATUS_FILE"
+
+  process_schedule "$current_time"
+
+  remaining_seconds=$((60 - $(date +%-S)))
+  sleep "$remaining_seconds"
+done

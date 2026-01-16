@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# Define colors
+GREEN=$(tput setaf 2)
+RED=$(tput setaf 1)
+YELLOW=$(tput setaf 3)
+CYAN=$(tput setaf 6)
+RESET=$(tput sgr0)
+
+# Loop through each program name passed as argument
+for program_name in "$@"; do
+  echo -e "${CYAN}🔍 Checking for background processes matching: '${program_name}'${RESET}"
+
+  # Find all matching processes, excluding this script's process and grep
+  matches=$(pgrep -af "$program_name" | grep -v "$$" | grep -v "$0")
+
+  if [ -n "$matches" ]; then
+    echo -e "${GREEN}✅ Found matching background processes:${RESET}"
+    echo -e "${YELLOW}${matches}${RESET}"
+  else
+    echo -e "${RED}❌ No matching background processes found for '${program_name}'.${RESET}"
+  fi
+
+  echo
+done

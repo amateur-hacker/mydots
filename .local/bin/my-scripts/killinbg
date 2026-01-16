@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+# Define colors
+GREEN=$(tput setaf 2)
+RED=$(tput setaf 1)
+YELLOW=$(tput setaf 3)
+CYAN=$(tput setaf 6)
+RESET=$(tput sgr0)
+
+# Function to kill a PID
+kill_pid() {
+  local pid="$1"
+  echo -e "${CYAN}🔍 Killing PID: $pid${RESET}"
+  if kill -TERM "$pid" 2>/dev/null; then
+    echo -e "${GREEN}✅ PID $pid terminated.${RESET}"
+  else
+    echo -e "${RED}❌ Failed to terminate PID $pid.${RESET}"
+  fi
+}
+
+# Function to kill a program by name
+kill_program() {
+  local program_name="$1"
+  local current_pid="$$"
+  local script_name
+  script_name=$(basename "$0")
+
+  pids=$(pgrep -f "$program_name" | while read -r pid; do
+    cmdline=$(ps -p "$pid" -o cmd=)
+    if [[ "$pid" != "$current_pid" && "$cmdline" != *"$script_name"* ]]; then
+      echo "$pid"
+    fi
+  done)
+
+  if [ -n "$pids" ]; then
+    echo -e "${CYAN}🔫 Killing the following PIDs for '${program_name}':${RESET}"
+    echo "$pids"
+    while IFS= read -r pid; do
+      if kill -TERM "$pid" 2>/dev/null; then
+        echo -e "${GREEN}✅ PID $pid terminated.${RESET}"
+      else
+        echo -e "${RED}❌ Failed to terminate PID $pid.${RESET}"
+      fi
+    done <<<"$pids"
+  else
+    echo -e "${YELLOW}⚠️  No matching process found for '${program_name}'.${RESET}"
+  fi
+}
+
+# Loop through all arguments
+for input in "$@"; do
+  if [[ "$input" =~ ^[0-9]+$ ]]; then
+    kill_pid "$input"
+  else
+    kill_program "$input"
+  fi
+done

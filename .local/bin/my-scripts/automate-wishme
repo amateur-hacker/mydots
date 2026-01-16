@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# Specify the path for the lock file
+LOCKFILE=/tmp/greeting_script.lock
+
+# Check if the lock file exists and exit if it does
+if [[ -e $LOCKFILE ]] && kill -0 "$(cat $LOCKFILE)" 2>/dev/null; then
+  echo "Script is already running"
+  exit 1
+fi
+
+# Create the lock file with the PID of the current process
+echo $$ >"$LOCKFILE"
+
+# This script plays a different MP3 file based on the current time of day.
+while true; do
+  # Get the current time
+  time=$(date +%I:%M%p)
+
+  # If it's 11:30 PM, play the "good night" MP3.
+  if [[ $time == "11:30PM" ]]; then
+    mpv "$HOME/downloads/greeting-voices/gn.mp3"
+
+  # If it's 7:30 AM, play the "good morning" MP3.
+  elif [[ $time == "07:30AM" ]]; then
+    mpv "$HOME/downloads/greeting-voices/gm.mp3"
+
+  # If it's 1:30 PM, play the "good afternoon" MP3.
+  elif [[ $time == "01:30PM" ]]; then
+    mpv "$HOME/downloads/greeting-voices/gan.mp3"
+
+  # If it's 6:00 PM, play the "good evening" MP3.
+  elif [[ $time == "06:00PM" ]]; then
+    mpv "$HOME/downloads/greeting-voices/ge.mp3"
+  fi
+
+  # Wait for 60 seconds before checking the time again.
+  sleep 60
+done
+
+# Remove the lock file when the script exits
+rm -f "$LOCKFILE"

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# Get current hour and minute in 12-hour format
+time=$(date +"%I:%M")
+
+# Get AM or PM
+period=$(date +"%p")
+
+# Replace AM/PM with Unicode symbol
+if [ "$period" == "PM" ]; then
+  symbol="☀️"
+else
+  symbol="🌙"
+fi
+
+# Output formatted time
+echo "$time $symbol"

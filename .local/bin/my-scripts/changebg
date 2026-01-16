@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+image_path="$1"
+image_file="$HOME/.config/wall.png"
+
+cp -r "$image_path" "$image_file"
+
+swww img "$image_file" --transition-fps 30 --transition-type any --transition-duration 3
+sudo cp -r "$image_file" /usr/share/sddm/themes/Sweet/assets/bg.jpg

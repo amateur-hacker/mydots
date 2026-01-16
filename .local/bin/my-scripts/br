@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# Function to send brightness change notification
+function send_notification() {
+  # Fetch the current brightness using brillo and format it to remove decimals
+  brightness=$(printf "%.0f\n" "$(brillo -G)")
+  # Send the notification for brightness change using notify-send
+  notify-send -a "changebrightness" -u normal -r 9993 -h int:value:"$brightness" -i "brightness-$1" "Brightness: $brightness%" -t 1500
+}
+
+# Use a case statement to handle different command line arguments
+case $1 in
+"-u")
+  # Increase the brightness by 10% using brightnessctl
+  brightnessctl -q set +10% && send_notification "up"
+  ;;
+"-d")
+  # Decrease the brightness by 10% using brightnessctl
+  brightnessctl -q set 10%- && send_notification "down"
+  ;;
+*)
+  # Display a usage message if an invalid option is provided
+  script_name=$(basename "$0")
+  echo "Usage: $script_name [-u | -d]"
+  exit 1
+  ;;
+esac

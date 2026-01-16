@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+device_mac_addr="33:33:22:37:7D:B2"
+
+case $1 in 
+  "-c")
+      bluetoothctl connect "$device_mac_addr" && notify-send -i bluetooth-connect "Bluetooth Connected" -t 3000 || notify-send "Failed to connect bluetooth" -t 3000
+
+      ;;
+  "-d")
+      bluetoothctl disconnect "$device_mac_addr" && notify-send -i bluetooth-disconnect "Bluetooth Disconnected" -t 3000
+      ;;
+  "-f")
+      rfkill block bluetooth
+      rfkill unblock bluetooth
+      bluetoothctl connect "$device_mac_addr" && notify-send -i bluetooth-fix "Bluetooth Fixed" -t 3000 || notify-send "Failed to fixed bluetooth" -t 3000
+      ;;
+     *)
+      script_name=$(basename "$0")
+      echo "Usage: $script_name [-c | -d | -f]"
+      exit 1
+      ;;
+esac

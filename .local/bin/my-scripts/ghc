@@ -1,0 +1,114 @@
+#!/bin/bash
+
+GITHUB_USER="amateur-hacker"
+SCRIPT_NAME=$(basename "$0")
+
+usage() {
+  echo "Usage: $SCRIPT_NAME [options]"
+  echo "Options:"
+  echo "  -c, --clone <repo_name> [visibility]       Clone a repository"
+  echo "  -ic, --initial-clone <repo_name> <description> [visibility]       Create a public/private repository with readme file, set it as remote, and clone it"
+  echo "  -ep, --existing-push <repo_name> <description> [visibility]   Set an existing local repository as remote and push to it"
+  echo "  -r, --rename <old_name> <new_name>   Rename a repository"
+  echo "  -d, --delete <repo_name>       Delete a repository"
+  echo "  -l, --list                     List all repositories"
+  echo "  -s, --stars <repo_name>        Get the number of stars for a repository"
+  echo "  -cv, --change-visibility <repo_name> <visibility>   Change the visibility of a repository"
+  echo "  -i, --info <repo_name>         Get detailed information about a repository"
+}
+
+if [[ $# -eq 0 ]]; then
+  usage
+  exit 1
+fi
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+  "-c" | "--clone")
+    if [[ $# -lt 2 ]]; then
+      echo "Error: Argument <repo_name> is required for option $1"
+      exit 1
+    fi
+    gh repo clone "$GITHUB_USER"/"$2"
+    shift
+    ;;
+  "-ic" | "--initial-clone")
+    if [[ $# -lt 3 ]]; then
+      echo "Error: Arguments <repo_name> and <description> and <visibility>(optional, default:public) are required for option $1"
+      exit 1
+    fi
+    gh repo create "$2" --description "$3" --"${4:-public}" --add-readme --clone
+    shift $(($# > 3 ? 4 : 3))
+    ;;
+  "-ep" | "--existing-push")
+    if [[ $# -lt 3 ]]; then
+      echo "Error: Argument <repo_name> and <description> and <visibility>(optional, default:public) are required for option $1"
+      exit 1
+    fi
+    git init
+    gh repo create "$2" --description "$3" --"${4:-public}" --source=. --remote=upstream
+    git add .
+    git commit -m "Initial commit"
+    git push -u upstream main
+    shift $(($# > 2 ? 3 : 2))
+    ;;
+  "-r" | "--rename")
+    if [[ $# -lt 3 ]]; then
+      echo "Error: Arguments <old_name> and <new_name> are required for option $1"
+      exit 1
+    fi
+    gh repo rename "$3" --repo "$GITHUB_USER/$2"
+    shift 3
+    ;;
+  "-d" | "--delete")
+    if [[ $# -lt 2 ]]; then
+      echo "Error: Argument <repo_name> is required for option $1"
+      exit 1
+    fi
+    read -rp "Are you sure you want to delete repository $2? (y/n): " confirm_delete
+    if [[ "$confirm_delete" == "y" || "$confirm_delete" == "Y" ]]; then
+      gh repo delete --yes "$2"
+    else
+      echo "Repository deletion cancelled."
+    fi
+    shift 2
+    ;;
+  "-l" | "--list")
+    gh repo list
+    shift
+    ;;
+  "-s" | "--stars")
+    if [[ $# -lt 2 ]]; then
+      echo "Error: Argument <repo_name> is required for option $1"
+      exit 1
+    fi
+    stars=$(gh api repos/"$GITHUB_USER"/"$2" --jq '.stargazers_count')
+    echo "Stars: $stars"
+    shift 2
+    ;;
+  "-cv" | "--change-visibility")
+    if [[ $# -lt 3 ]]; then
+      echo "Error: Arguments <repo_name> and <visibility> are required for option $1"
+      exit 1
+    fi
+    gh repo edit "$GITHUB_USER"/"$2" --visibility "$3" --accept-visibility-change-consequences
+    shift 3
+    ;;
+  "-i" | "--info")
+    if [[ $# -lt 2 ]]; then
+      echo "Error: Argument <repo_name> is required for option $1"
+      exit 1
+    fi
+    gh api repos/"$GITHUB_USER"/"$2" --jq .
+    shift 2
+    ;;
+  "-h" | "--help")
+    usage
+    exit 0
+    ;;
+  *)
+    echo "Invalid option: $1"
+    exit 1
+    ;;
+  esac
+done

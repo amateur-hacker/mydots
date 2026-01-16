@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+# Define the output directory and file name
+output_dir="$HOME/pictures/anand-college-screenshots/"
+# Define the format for the file name using the current date and time
+# format=$(date +%d-%m-%y)-$(date +%I-%M-%S-%p)
+format=$(date +%dD-%mM-%yY_%Ih-%Mm-%Ss_%p)
+focused_monitor=$(hyprctl monitors | grep -B 15 "focused: yes" | awk '/Monitor/ {print $2}')
+
+# Function to take screenshots and display notifications
+take_screenshot_and_notify() {
+  local file_suffix=$1
+  local capture_mode=$2
+  local notification_text=$3
+
+  local file_name="$format-$file_suffix.png"
+
+  # Take a screenshot with the specified capture mode
+  if [[ $capture_mode == "window" ]]; then
+    hyprshot -s -m "$capture_mode" -m "active" -o "$output_dir" -f "$file_name"
+  else
+    hyprshot -s -m "$capture_mode" -m "$focused_monitor" -o "$output_dir" -f "$file_name"
+  fi
+  # [[ ! -f "$output_dir/$file_name" ]] && notify-send -i "$output_dir/$file_name" "$notification_text" "Screenshot taken." -t 3000 || notify-send "Screenshot cancelled" -t 3000
+  if [ -f "$output_dir/$file_name" ]; then
+    notify-send -i "$output_dir/$file_name" "$notification_text" "Screenshot taken." -t 3000
+  else
+    notify-send "Screenshot cancelled" -t 3000
+  fi
+}
+
+# Handle the different cases
+case "$1" in
+"-s")
+  take_screenshot_and_notify "select-screenshot" "region" "Selected region"
+  ;;
+"-a")
+  take_screenshot_and_notify "active-screenshot" "window" "Active window"
+  ;;
+"-f")
+  take_screenshot_and_notify "full-screenshot" "output" "Full screen"
+  ;;
+"-c")
+  # hyprshot -s -m region -m "$focused_monitor" --clipboard-only && notify-send "Screenshot copied to clipboard" -t 3000 || notify-send "Screenshot cancelled" -t 3000
+  if hyprshot -s -m region -m "$focused_monitor" --clipboard-only; then
+    notify-send "Screenshot copied to clipboard" -t 3000
+  else
+    notify-send "Screenshot cancelled" -t 3000
+  fi
+  ;;
+*)
+  script_name=$(basename "$0")
+  # Display a usage message if an invalid option is provided
+  echo "Usage: $script_name [-s | -a | -f]"
+  exit 1
+  ;;
+esac

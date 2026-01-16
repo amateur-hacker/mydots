@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -eu
+
+# Constants
+declare -r _lengthDefault=32
+declare -r _countDefault=1
+
+# Character sets
+declare -r _uppercase='A-Z'
+declare -r _lowercase='a-z'
+declare -r _digits='0-9'
+declare -r _special='!@#%^&*()-=_+[]{}|;:,.<>?/~'
+
+generateString() {
+  local length="$1"
+  local result=""
+
+  # Ensure at least one character from each category
+  result+=$(tr -dc "$_uppercase" </dev/urandom | head -c 1)
+  result+=$(tr -dc "$_lowercase" </dev/urandom | head -c 1)
+  result+=$(tr -dc "$_digits" </dev/urandom | head -c 1)
+  result+=$(tr -dc "$_special" </dev/urandom | head -c 1)
+
+  # Fill the rest of the length with random characters from all categories
+  remainingLength=$((length - ${#result}))
+  if [ $remainingLength -gt 0 ]; then
+    result+=$(tr -dc "$_uppercase$_lowercase$_digits$_special" </dev/urandom | head -c "$remainingLength")
+  fi
+
+  # Shuffle the result to ensure randomness
+  echo "$result" | fold -w1 | shuf | tr -d '\n'
+}
+
+main() {
+  local length="${1:-$_lengthDefault}"
+  local count="${2:-$_countDefault}"
+
+  for ((i = 0; i < count; i++)); do
+    generateString "$length"
+    echo
+  done
+}
+
+main "$@"

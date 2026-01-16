@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# Function to send volume change notification
+function send_notification() {
+  # Fetch the current volume using amixer, and extract the percentage using sed
+  vol="$(amixer get Master | tail -n1 | sed -r 's/.*\[(.*)%\].*/\1/')"
+  # Use notify-send to send a desktop notification
+  notify-send -a "changevolume" -i "volume-$1" -u normal -r 9993 -h int:value:"$vol" "Volume: $vol %" -t 1500
+}
+
+# Use a case statement to handle different command line arguments
+case $1 in
+"-u")
+  # Increase the volume by 5% and unmute it using amixer
+  amixer set Master 5%+ unmute && send_notification "up"
+  ;;
+"-d")
+  # Decrease the volume by 5% and unmute it using amixer
+  amixer set Master 5%- unmute && send_notification "down"
+  ;;
+"-m")
+  # Get the current volume state
+  is_muted=$(amixer get Master | grep -o "\[on\]" | head -n 1 || echo "[off]")
+
+  # Toggle the volume using amixer
+  amixer set Master toggle
+
+  # Update the notification based on the new state
+  # [[ $is_muted == "[on]" ]] && notify-send -i volume-mute -a "changevolume" -t 1500 -r 9993 -u low "Muted" || notify-send -i volume-up -a "changevolume" -t 1500 -r 9993 -u low "Unmuted"
+  if [[ $is_muted == "[on]" ]]; then
+    notify-send -i volume-mute -a "changevolume" -t 1500 -r 9993 -u low "Muted"
+  else
+    notify-send -i volume-up -a "changevolume" -t 1500 -r 9993 -u low "Unmuted"
+  fi
+  ;;
+*)
+  # Display a usage message if an invalid option is provided
+  script_name=$(basename "$0")
+  echo "Usage: $script_name [-u | -d | -m]"
+  exit 1
+  ;;
+esac

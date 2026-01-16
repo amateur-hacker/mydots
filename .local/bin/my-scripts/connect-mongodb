@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# mongosh "mongodb+srv://webdevcluster.gejvotc.mongodb.net/" --apiVersion 1 --username amateur_hacker
+# mongosh "mongodb+srv://ezmony.jgxrdun.mongodb.net/" --apiVersion 1 --username amateur_hacker
+mongosh "mongodb+srv://webdevcluster.gejvotc.mongodb.net/" --apiVersion 1 --username amateur_hacker

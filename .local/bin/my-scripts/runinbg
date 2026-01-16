@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# Define colors
+GREEN=$(tput setaf 2)
+RED=$(tput setaf 1)
+YELLOW=$(tput setaf 3)
+CYAN=$(tput setaf 6)
+RESET=$(tput sgr0)
+
+for program_name in "$@"; do
+  echo -e "${CYAN}🚀 Starting '${program_name}' in background...${RESET}"
+  if setsid -f "$program_name" >/dev/null 2>&1; then
+    echo -e "${GREEN}✅ '${program_name}' started successfully.${RESET}"
+  else
+    echo -e "${RED}❌ Failed to start '${program_name}'.${RESET}"
+  fi
+done

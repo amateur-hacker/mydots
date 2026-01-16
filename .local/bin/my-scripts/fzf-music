@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+###########################################
+# Load configuration from a JSON file.
+# If missing, create a sample config.
+# Validate against schema, then parse playlists
+# into an associative array.
+###########################################
+load_config() {
+  local config_file="$HOME/.config/fzf-music/config.json"
+  declare -gA playlists
+  local schema_file="$HOME/.config/fzf-music/config-schema.json"
+  local config_hash_file="$HOME/.config/fzf-music/config.json.hash"
+
+  if [[ ! -f "$schema_file" ]]; then
+    echo "Schema file not found at $schema_file. Please create it."
+    exit 1
+  fi
+
+  if [[ ! -f "$config_file" ]]; then
+    echo "Creating sample config file..."
+    cat <<EOL >"$config_file"
+{
+  "playlists": [
+    {
+      "name": "Sample Playlist",
+      "path": "\$HOME/Music/sample-playlist"
+    },
+    {
+      "name": "Another Playlist",
+      "path": "\$HOME/Music/another-playlist"
+    }
+  ]
+}
+EOL
+    echo "Sample config created. Edit it with your playlists."
+    exit 1
+  fi
+
+  local new_hash
+  new_hash=$(md5sum "$config_file")
+
+  if [[ ! -f "$config_hash_file" || "$(cat "$config_hash_file")" != "$new_hash" ]]; then
+    check-jsonschema --schemafile "$schema_file" "$config_file" | sed "s|$HOME|~|" || exit 1
+    echo "$new_hash" >"$config_hash_file"
+  fi
+
+  local entries
+  entries=$(jq -c '.playlists[]' "$config_file")
+
+  while IFS= read -r entry; do
+    local name path
+    name=$(echo "$entry" | jq -r '.name')
+    path=$(echo "$entry" | jq -r '.path')
+    path=$(eval echo "$path")
+    playlists["$name"]="$path"
+  done <<<"$entries"
+}
+
+###########################################
+# Display options using fzf and return selection.
+###########################################
+display_menu() {
+  local label="$1"
+  shift
+
+  printf '%s\n' "$@" | fzf --header="fzf-music" \
+    --header-first --border=rounded --margin=5% \
+    --color=dark --height=100% --reverse --info=hidden \
+    --border-label="$label"
+
+}
+
+###########################################
+# Handle playlist selection: play all or search.
+###########################################
+handle_playlist() {
+  local playlist_name="$1"
+  local playlist_dir="${playlists[$playlist_name]}"
+  local submenu_options=("Back" "Play entire playlist" "Search and play song")
+
+  while true; do
+    local choice
+    choice=$(display_menu "$playlist_name" "${submenu_options[@]}")
+
+    case "$choice" in
+    "Back") return ;;
+    "Play entire playlist")
+      notify-send -t 5000 "Starting playlist: $playlist_name"
+      mpv --playlist="$playlist_dir"
+      notify-send -t 5000 "Finished playlist: $playlist_name"
+      ;;
+    "Search and play song")
+      local song_list song_name
+      song_list=$(find "$playlist_dir" -type f -printf "%f\n")
+      song_name=$(display_menu "$playlist_name" "${song_list[@]}")
+
+      if [[ -n "$song_name" ]]; then
+        notify-send -t 5000 "Playing song: $song_name"
+        mpv "$playlist_dir/$song_name"
+        notify-send -t 5000 "Finished song: $song_name"
+      fi
+      ;;
+    esac
+  done
+}
+
+###########################################
+# Main loop: display playlists and handle user input.
+###########################################
+main() {
+  load_config
+
+  while true; do
+    local menu_options=("Quit" "${!playlists[@]}")
+    local choice
+    choice=$(display_menu "" "${menu_options[@]}")
+
+    case "$choice" in
+    "Quit") exit 0 ;;
+    *) [[ -n "${playlists[$choice]}" ]] && handle_playlist "$choice" || echo "Error: Playlist '$choice' not found." ;;
+    esac
+  done
+}
+
+# Start main function
+main
