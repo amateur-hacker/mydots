@@ -18,6 +18,10 @@ function fish_user_key_bindings
     # bind -M insert -m default jk 'commandline -f repaint'
     bind --erase --preset -M visual \ev
     bind --erase --preset -M insert \ev
+    bind \eh backward-word
+    bind \ej down-line-or-history
+    bind \ek up-line-or-history
+    bind \el forward-word
 end
 
 # Support for !! and !$
